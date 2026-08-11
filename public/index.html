@@ -80,6 +80,19 @@
           <input type="datetime-local" id="arrived-at" required>
           <p class="hint">Set to now automatically — adjust if needed</p>
         </div>
+
+        <div class="field">
+          <label for="dispatch-time">Dispatch Time</label>
+          <div class="offset-btns">
+            <button type="button" class="offset-btn" onclick="setDispatchOffset(15)">+15 min</button>
+            <button type="button" class="offset-btn" onclick="setDispatchOffset(30)">+30 min</button>
+            <button type="button" class="offset-btn" onclick="setDispatchOffset(45)">+45 min</button>
+            <button type="button" class="offset-btn" onclick="setDispatchOffset(60)">+60 min</button>
+            <button type="button" class="offset-btn" onclick="setDispatchOffset(75)">+75 min</button>
+          </div>
+          <input type="datetime-local" id="dispatch-time">
+          <p class="hint">Tap a button to set time from arrival, or enter manually</p>
+        </div>
       </section>
 
       <!-- Client -->

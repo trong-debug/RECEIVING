@@ -69,6 +69,23 @@ function closeManage(e) {
   document.getElementById('manage-modal').classList.add('hidden');
 }
 
+// ── Dispatch time offset buttons ───────────────────────────────────────────
+
+let activeOffsetBtn = null;
+
+function setDispatchOffset(mins) {
+  const arrivedVal = document.getElementById('arrived-at').value;
+  if (!arrivedVal) { showError('Please set Arrived At time first.'); return; }
+  const base = new Date(arrivedVal);
+  base.setMinutes(base.getMinutes() + mins);
+  const pad = n => String(n).padStart(2, '0');
+  const dt = `${base.getFullYear()}-${pad(base.getMonth()+1)}-${pad(base.getDate())}T${pad(base.getHours())}:${pad(base.getMinutes())}`;
+  document.getElementById('dispatch-time').value = dt;
+  document.querySelectorAll('.offset-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById('dispatch-time').previousElementSibling.querySelectorAll('.offset-btn')
+    .forEach(b => { if (b.textContent === `+${mins} min`) b.classList.add('selected'); });
+}
+
 // ── Direction selection ────────────────────────────────────────────────────
 
 let selectedDirection = null;
@@ -245,6 +262,7 @@ document.getElementById('delivery-form').addEventListener('submit', async e => {
     num_satchels: parseInt(document.getElementById('num-satchels').value) || 0,
     client_name: (() => { const s = document.getElementById('client-select').value; return s === '__new__' ? document.getElementById('new-client').value.trim() || null : s || null; })(),
     direction: selectedDirection,
+    dispatch_time: document.getElementById('dispatch-time').value || null,
     transport_name: (() => { const s = document.getElementById('transport-select').value; return s === '__new__' ? document.getElementById('new-transport').value.trim() || null : s || null; })(),
     temperature: selectedTemp || null,
     temperature_value: document.getElementById('temperature-value').value.trim() || null,
@@ -317,6 +335,8 @@ function resetForm() {
   hide(document.getElementById('new-client-field'));
   selectedDirection = null;
   document.querySelectorAll('#direction-btn-row .disp-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById('dispatch-time').value = '';
+  document.querySelectorAll('.offset-btn').forEach(b => b.classList.remove('selected'));
   hide(document.getElementById('new-transport-field'));
   hide(document.getElementById('new-recipient-field'));
   for (const type of ['chep', 'loscam', 'plain']) {
