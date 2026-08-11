@@ -33,6 +33,17 @@ function setPalletDisp(type, disp) {
   }
 }
 
+// ── Temperature selection ──────────────────────────────────────────────────
+
+let selectedTemp = null;
+
+function setTemp(type) {
+  selectedTemp = type;
+  document.querySelectorAll('#temp-btn-row .disp-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById('temp-' + type).classList.add('selected');
+  document.getElementById('temp-value-field').classList.remove('hidden');
+}
+
 // ── Helpers ────────────────────────────────────────────────────────────────
 
 function localDatetimeValue() {
@@ -147,7 +158,8 @@ document.getElementById('delivery-form').addEventListener('submit', async e => {
     num_cartons:  parseInt(document.getElementById('num-cartons').value)  || 0,
     num_satchels: parseInt(document.getElementById('num-satchels').value) || 0,
     transport_name: document.getElementById('transport-name').value.trim() || null,
-    temperature: document.getElementById('temperature').value.trim() || null,
+    temperature: selectedTemp || null,
+    temperature_value: document.getElementById('temperature-value').value.trim() || null,
     chep_docket: document.getElementById('chep-docket').value.trim() || null,
     condition: document.querySelector('input[name="condition"]:checked').value,
     recipient_name: document.getElementById('recipient').value.trim() || null,
@@ -224,4 +236,8 @@ function resetForm() {
   }
   document.getElementById('chep-docket-field').classList.add('hidden');
   document.getElementById('chep-docket').value = '';
+  selectedTemp = null;
+  document.querySelectorAll('#temp-btn-row .disp-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById('temp-value-field').classList.add('hidden');
+  document.getElementById('temperature-value').value = '';
 }

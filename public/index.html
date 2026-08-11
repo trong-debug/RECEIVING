@@ -155,8 +155,16 @@
           <input type="text" id="transport-name" placeholder="e.g. StarTrack, Toll, TNT">
         </div>
         <div class="field">
-          <label for="temperature">Temperature</label>
-          <input type="text" id="temperature" placeholder="e.g. Ambient, Chilled, Frozen">
+          <label>Temperature</label>
+          <div class="disp-row" id="temp-btn-row">
+            <button type="button" class="disp-btn" id="temp-Ambient"  onclick="setTemp('Ambient')">Ambient</button>
+            <button type="button" class="disp-btn" id="temp-Chilled"  onclick="setTemp('Chilled')">Chilled</button>
+            <button type="button" class="disp-btn" id="temp-Frozen"   onclick="setTemp('Frozen')">Frozen</button>
+          </div>
+        </div>
+        <div class="field hidden" id="temp-value-field">
+          <label for="temperature-value">Enter Temperature (°C)</label>
+          <input type="number" id="temperature-value" placeholder="e.g. -18" inputmode="numeric">
         </div>
       </section>
 

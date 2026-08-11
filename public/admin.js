@@ -86,7 +86,7 @@ function renderTable(rows) {
       <td style="text-align:center">${r.num_cartons || 0}</td>
       <td style="text-align:center">${r.num_satchels || 0}</td>
       <td>${esc(r.transport_name) || ''}</td>
-      <td>${esc(r.temperature) || ''}</td>
+      <td>${r.temperature ? esc(r.temperature) + (r.temperature_value ? ' ' + esc(r.temperature_value) + '°C' : '') : ''}</td>
       <td>${esc(r.chep_docket) || ''}</td>
       <td><span class="badge ${badgeCls}">${esc(r.condition)}</span></td>
       <td>${esc(r.recipient_name) || ''}</td>

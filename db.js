@@ -49,6 +49,7 @@ const migrations = [
   ['plain_disposition', 'TEXT'],
   ['transport_name',    'TEXT'],
   ['temperature',       'TEXT'],
+  ['temperature_value', 'TEXT'],
   ['chep_docket',       'TEXT'],
 ];
 for (const [col, def] of migrations) {
