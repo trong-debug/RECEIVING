@@ -2,6 +2,21 @@ const express = require('express');
 const path = require('path');
 const db = require('./db');
 
+async function syncToSheets(delivery) {
+  const url = process.env.GOOGLE_SHEET_WEBHOOK;
+  if (!url) return;
+  try {
+    await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(delivery),
+      signal: AbortSignal.timeout(5000)
+    });
+  } catch (err) {
+    console.error('Sheets sync error:', err.message);
+  }
+}
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -66,6 +81,9 @@ app.post('/api/deliveries', (req, res) => {
   // Persist new driver/site names automatically
   db.prepare('INSERT OR IGNORE INTO drivers (name) VALUES (?)').run(driver_name);
   db.prepare('INSERT OR IGNORE INTO sites (name, address) VALUES (?, ?)').run(site_name, address || null);
+
+  const newRecord = db.prepare('SELECT * FROM deliveries WHERE id = ?').get(result.lastInsertRowid);
+  syncToSheets(newRecord); // fire-and-forget
 
   res.json({ id: result.lastInsertRowid });
 });
