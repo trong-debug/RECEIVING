@@ -140,6 +140,10 @@ app.get('/api/sites', (_req, res) => {
   res.json(db.prepare('SELECT name, address FROM sites ORDER BY name').all());
 });
 
+// ── Health check ─────────────────────────────────────────────────────────────
+
+app.get('/health', (_req, res) => res.json({ status: 'ok' }));
+
 // ── Serve SPA pages ──────────────────────────────────────────────────────────
 
 app.get('/admin', (_req, res) => res.sendFile(path.join(__dirname, 'public', 'admin.html')));
