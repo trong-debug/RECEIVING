@@ -67,7 +67,7 @@
 
         <div class="field">
           <label for="address">Address</label>
-          <input type="text" id="address" placeholder="Street address">
+          <input type="text" id="address" placeholder="Auto-filled from site" readonly class="input-readonly">
         </div>
       </section>
 
@@ -99,6 +99,14 @@
         <div class="field hidden" id="new-client-field">
           <label for="new-client">Enter client name</label>
           <input type="text" id="new-client" placeholder="Client / company name">
+        </div>
+
+        <div class="field">
+          <label>Drop Off Direction <span class="req">*</span></label>
+          <div class="disp-row" id="direction-btn-row">
+            <button type="button" class="disp-btn" id="direction-Inbound"  onclick="setDirection('Inbound')">Inbound</button>
+            <button type="button" class="disp-btn" id="direction-Outbound" onclick="setDirection('Outbound')">Outbound</button>
+          </div>
         </div>
       </section>
 

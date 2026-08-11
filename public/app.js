@@ -69,6 +69,16 @@ function closeManage(e) {
   document.getElementById('manage-modal').classList.add('hidden');
 }
 
+// ── Direction selection ────────────────────────────────────────────────────
+
+let selectedDirection = null;
+
+function setDirection(dir) {
+  selectedDirection = dir;
+  document.querySelectorAll('#direction-btn-row .disp-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById('direction-' + dir).classList.add('selected');
+}
+
 // ── Temperature selection ──────────────────────────────────────────────────
 
 let selectedTemp = null;
@@ -211,6 +221,7 @@ document.getElementById('delivery-form').addEventListener('submit', async e => {
   if (!driver_name) { showError('Please select or enter your name.'); return; }
   if (!site_name)   { showError('Please select or enter a site name.'); return; }
   if (!arrived_at)  { showError('Please enter the arrival time.'); return; }
+  if (!selectedDirection) { showError('Please select Inbound or Outbound.'); return; }
 
   for (const type of ['chep', 'loscam', 'plain']) {
     if (palletCounts[type] > 0 && !palletDisp[type]) {
@@ -233,6 +244,7 @@ document.getElementById('delivery-form').addEventListener('submit', async e => {
     num_cartons:  parseInt(document.getElementById('num-cartons').value)  || 0,
     num_satchels: parseInt(document.getElementById('num-satchels').value) || 0,
     client_name: (() => { const s = document.getElementById('client-select').value; return s === '__new__' ? document.getElementById('new-client').value.trim() || null : s || null; })(),
+    direction: selectedDirection,
     transport_name: (() => { const s = document.getElementById('transport-select').value; return s === '__new__' ? document.getElementById('new-transport').value.trim() || null : s || null; })(),
     temperature: selectedTemp || null,
     temperature_value: document.getElementById('temperature-value').value.trim() || null,
@@ -303,6 +315,8 @@ function resetForm() {
   hide(document.getElementById('new-driver-field'));
   hide(document.getElementById('new-site-field'));
   hide(document.getElementById('new-client-field'));
+  selectedDirection = null;
+  document.querySelectorAll('#direction-btn-row .disp-btn').forEach(b => b.classList.remove('selected'));
   hide(document.getElementById('new-transport-field'));
   hide(document.getElementById('new-recipient-field'));
   for (const type of ['chep', 'loscam', 'plain']) {

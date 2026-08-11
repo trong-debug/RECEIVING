@@ -305,6 +305,7 @@ textarea { resize: vertical; }
 .select-with-manage select { flex: 1; }
 .btn-manage { flex-shrink: 0; width: 36px; height: 36px; background: none; border: 1px solid var(--border); border-radius: 8px; font-size: 16px; cursor: pointer; color: var(--text-muted); display: flex; align-items: center; justify-content: center; }
 .btn-manage:hover { background: var(--bg); color: var(--brand); border-color: var(--brand); }
+.input-readonly { background: var(--bg); color: var(--text-muted); cursor: default; }
 
 /* ── Manage modal ────────────────────────────────────────── */
 .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px; }

@@ -63,6 +63,7 @@ const migrations = [
   ['plain_count',       'INTEGER DEFAULT 0'],
   ['plain_disposition', 'TEXT'],
   ['client_name',       'TEXT'],
+  ['direction',         'TEXT'],
   ['transport_name',    'TEXT'],
   ['temperature',       'TEXT'],
   ['temperature_value', 'TEXT'],
