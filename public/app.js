@@ -115,12 +115,26 @@ function setDirection(dir) {
 // ── Temperature selection ──────────────────────────────────────────────────
 
 let selectedTemp = null;
+let tempValue = 0;
 
 function setTemp(type) {
   selectedTemp = type;
   document.querySelectorAll('#temp-btn-row .disp-btn').forEach(b => b.classList.remove('selected'));
   document.getElementById('temp-' + type).classList.add('selected');
   document.getElementById('temp-value-field').classList.remove('hidden');
+}
+
+function adjTemp(delta) {
+  tempValue += delta;
+  document.getElementById('temp-value-display').textContent = tempValue;
+}
+
+function startTempHold(delta, e) {
+  if (e && e.cancelable) e.preventDefault();
+  adjTemp(delta);
+  holdTimer = setTimeout(() => {
+    holdInterval = setInterval(() => adjTemp(delta), 80);
+  }, 450);
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────────
@@ -283,7 +297,7 @@ document.getElementById('delivery-form').addEventListener('submit', async e => {
     dispatch_time: document.getElementById('dispatch-time').value || null,
     transport_name: (() => { const s = document.getElementById('transport-select').value; return s === '__new__' ? document.getElementById('new-transport').value.trim() || null : s || null; })(),
     temperature: selectedTemp || null,
-    temperature_value: document.getElementById('temperature-value').value.trim() || null,
+    temperature_value: selectedTemp ? String(tempValue) : null,
     chep_docket: document.getElementById('chep-docket').value.trim() || null,
     condition: document.querySelector('input[name="condition"]:checked').value,
     recipient_name: (() => { const s = document.getElementById('recipient-select').value; return s === '__new__' ? document.getElementById('new-recipient').value.trim() || null : s || null; })(),
@@ -368,7 +382,8 @@ function resetForm() {
   document.getElementById('chep-docket-field').classList.add('hidden');
   document.getElementById('chep-docket').value = '';
   selectedTemp = null;
+  tempValue = 0;
   document.querySelectorAll('#temp-btn-row .disp-btn').forEach(b => b.classList.remove('selected'));
   document.getElementById('temp-value-field').classList.add('hidden');
-  document.getElementById('temperature-value').value = '';
+  document.getElementById('temp-value-display').textContent = '0';
 }

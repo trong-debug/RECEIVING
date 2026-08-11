@@ -219,8 +219,13 @@
           </div>
         </div>
         <div class="field hidden" id="temp-value-field">
-          <label for="temperature-value">Enter Temperature (°C)</label>
-          <input type="number" id="temperature-value" placeholder="e.g. -18" inputmode="numeric">
+          <label>Temperature (°C)</label>
+          <div class="pallet-counter temp-counter">
+            <button type="button" class="pallet-btn" onmousedown="startTempHold(-1,event)" ontouchstart="startTempHold(-1,event)" onmouseup="stopHold()" onmouseleave="stopHold()" ontouchend="stopHold()">−</button>
+            <span class="pallet-num" id="temp-value-display">0</span>
+            <span class="temp-unit">°C</span>
+            <button type="button" class="pallet-btn" onmousedown="startTempHold(1,event)" ontouchstart="startTempHold(1,event)" onmouseup="stopHold()" onmouseleave="stopHold()" ontouchend="stopHold()">+</button>
+          </div>
         </div>
       </section>
 

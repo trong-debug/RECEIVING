@@ -306,6 +306,8 @@ textarea { resize: vertical; }
 .btn-manage { flex-shrink: 0; width: 36px; height: 36px; background: none; border: 1px solid var(--border); border-radius: 8px; font-size: 16px; cursor: pointer; color: var(--text-muted); display: flex; align-items: center; justify-content: center; }
 .btn-manage:hover { background: var(--bg); color: var(--brand); border-color: var(--brand); }
 .input-readonly { background: var(--bg); color: var(--text-muted); cursor: default; }
+.temp-counter { display: inline-flex; align-items: center; gap: 12px; }
+.temp-unit { font-size: 15px; font-weight: 600; color: var(--text-muted); }
 .dispatch-offset-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
 .dispatch-offset-row input { width: 90px; }
 .dispatch-offset-label { font-size: 14px; color: var(--text-muted); white-space: nowrap; }
