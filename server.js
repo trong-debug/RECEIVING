@@ -4,14 +4,17 @@ const db = require('./db');
 
 async function syncToSheets(delivery) {
   const url = process.env.GOOGLE_SHEET_WEBHOOK;
-  if (!url) return;
+  if (!url) { console.log('Sheets sync: no webhook URL set'); return; }
   try {
-    await fetch(url, {
+    console.log('Sheets sync: sending delivery #' + delivery.id);
+    const res = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(delivery),
-      signal: AbortSignal.timeout(5000)
+      signal: AbortSignal.timeout(10000)
     });
+    const text = await res.text();
+    console.log('Sheets sync: response status=' + res.status + ' body=' + text);
   } catch (err) {
     console.error('Sheets sync error:', err.message);
   }
