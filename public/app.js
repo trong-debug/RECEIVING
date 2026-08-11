@@ -28,7 +28,7 @@ function setPalletDisp(type, disp) {
   document.getElementById(type + '-' + disp).classList.add('selected');
   if (type === 'chep') {
     const docketField = document.getElementById('chep-docket-field');
-    if (disp === 'Exchanged') docketField.classList.remove('hidden');
+    if (disp === 'Transfer') docketField.classList.remove('hidden');
     else { docketField.classList.add('hidden'); document.getElementById('chep-docket').value = ''; }
   }
 }
