@@ -151,8 +151,14 @@
           </div>
         </div>
         <div class="field">
-          <label for="transport-name">Transport Name</label>
-          <input type="text" id="transport-name" placeholder="e.g. StarTrack, Toll, TNT">
+          <label for="transport-select">Transport Name</label>
+          <select id="transport-select">
+            <option value="">— Select carrier —</option>
+          </select>
+        </div>
+        <div class="field hidden" id="new-transport-field">
+          <label for="new-transport">Enter carrier name</label>
+          <input type="text" id="new-transport" placeholder="e.g. StarTrack, Toll, TNT">
         </div>
         <div class="field">
           <label>Temperature</label>

@@ -36,6 +36,11 @@ db.exec(`
     name TEXT NOT NULL UNIQUE,
     address TEXT
   );
+
+  CREATE TABLE IF NOT EXISTS transports (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL UNIQUE
+  );
 `);
 
 // Migrate existing DB — add pallet columns if missing

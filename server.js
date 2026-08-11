@@ -91,9 +91,10 @@ app.post('/api/deliveries', (req, res) => {
     notes: notes || null
   });
 
-  // Persist new driver/site names automatically
+  // Persist new driver/site/transport names automatically
   db.prepare('INSERT OR IGNORE INTO drivers (name) VALUES (?)').run(driver_name);
   db.prepare('INSERT OR IGNORE INTO sites (name, address) VALUES (?, ?)').run(site_name, address || null);
+  if (transport_name) db.prepare('INSERT OR IGNORE INTO transports (name) VALUES (?)').run(transport_name);
 
   const newRecord = db.prepare('SELECT * FROM deliveries WHERE id = ?').get(result.lastInsertRowid);
   syncToSheets(newRecord); // fire-and-forget
@@ -181,6 +182,10 @@ app.get('/api/drivers', (_req, res) => {
 
 app.get('/api/sites', (_req, res) => {
   res.json(db.prepare('SELECT name, address FROM sites ORDER BY name').all());
+});
+
+app.get('/api/transports', (_req, res) => {
+  res.json(db.prepare('SELECT name FROM transports ORDER BY name').all().map(r => r.name));
 });
 
 // ── Health check ─────────────────────────────────────────────────────────────
