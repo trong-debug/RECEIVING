@@ -91,6 +91,7 @@ function renderTable(rows) {
       <td><span class="badge ${badgeCls}">${esc(r.condition)}</span></td>
       <td>${esc(r.recipient_name) || ''}</td>
       <td style="max-width:180px;word-break:break-word">${esc(r.notes) || ''}</td>
+      <td><button class="btn-delete-row" onclick="deleteRecord(${r.id})">Delete</button></td>
     </tr>`;
   }).join('');
   document.getElementById('table-wrap').classList.remove('hidden');
@@ -135,6 +136,19 @@ function formatDatetime(str) {
 function esc(str) {
   if (!str) return '';
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+async function deleteRecord(id) {
+  if (!confirm(`Delete record #${id}? This cannot be undone.`)) return;
+  await fetch(`/api/deliveries/${id}`, { method: 'DELETE' });
+  loadRecords();
+}
+
+async function clearAllRecords() {
+  if (!confirm('Delete ALL records? This cannot be undone.')) return;
+  if (!confirm('Are you sure? All delivery records will be permanently deleted.')) return;
+  await fetch('/api/deliveries', { method: 'DELETE' });
+  loadRecords();
 }
 
 loadDropdowns();

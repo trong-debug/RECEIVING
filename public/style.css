@@ -295,6 +295,10 @@ textarea { resize: vertical; }
 .btn-secondary:hover { background: var(--bg); }
 .btn-export    { padding: 9px 20px; background: var(--green); color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
 .btn-export:hover { background: #155f2a; }
+.btn-danger    { padding: 9px 20px; background: var(--red); color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
+.btn-danger:hover { background: #a12020; }
+.btn-delete-row { padding: 4px 10px; background: none; color: var(--red); border: 1px solid var(--red); border-radius: 6px; font-size: 12px; cursor: pointer; white-space: nowrap; }
+.btn-delete-row:hover { background: var(--red-bg); }
 
 /* ── Spinner ──────────────────────────────────────────────── */
 .spinner {

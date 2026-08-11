@@ -160,6 +160,16 @@ function csv_esc(v) {
   return s.includes(',') || s.includes('"') || s.includes('\n') ? `"${s.replace(/"/g, '""')}"` : s;
 }
 
+app.delete('/api/deliveries/:id', (req, res) => {
+  db.prepare('DELETE FROM deliveries WHERE id = ?').run(req.params.id);
+  res.json({ ok: true });
+});
+
+app.delete('/api/deliveries', (_req, res) => {
+  db.prepare('DELETE FROM deliveries').run();
+  res.json({ ok: true });
+});
+
 // ── Drivers & Sites (for dropdowns) ─────────────────────────────────────────
 
 app.get('/api/drivers', (_req, res) => {
