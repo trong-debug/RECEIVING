@@ -11,6 +11,10 @@ function adjPallet(type, delta) {
     row.classList.add('inactive');
     palletDisp[type] = null;
     row.querySelectorAll('.disp-btn').forEach(b => b.classList.remove('selected'));
+    if (type === 'chep') {
+      document.getElementById('chep-docket-field').classList.add('hidden');
+      document.getElementById('chep-docket').value = '';
+    }
   } else {
     row.classList.remove('inactive');
   }
@@ -22,6 +26,11 @@ function setPalletDisp(type, disp) {
   const row = document.getElementById(type + '-disp-row');
   row.querySelectorAll('.disp-btn').forEach(b => b.classList.remove('selected'));
   document.getElementById(type + '-' + disp).classList.add('selected');
+  if (type === 'chep') {
+    const docketField = document.getElementById('chep-docket-field');
+    if (disp === 'Exchanged') docketField.classList.remove('hidden');
+    else { docketField.classList.add('hidden'); document.getElementById('chep-docket').value = ''; }
+  }
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────────
@@ -137,6 +146,9 @@ document.getElementById('delivery-form').addEventListener('submit', async e => {
     plain_disposition: palletDisp.plain,
     num_cartons:  parseInt(document.getElementById('num-cartons').value)  || 0,
     num_satchels: parseInt(document.getElementById('num-satchels').value) || 0,
+    transport_name: document.getElementById('transport-name').value.trim() || null,
+    temperature: document.getElementById('temperature').value.trim() || null,
+    chep_docket: document.getElementById('chep-docket').value.trim() || null,
     condition: document.querySelector('input[name="condition"]:checked').value,
     recipient_name: document.getElementById('recipient').value.trim() || null,
     notes: document.getElementById('notes').value.trim() || null
@@ -210,4 +222,6 @@ function resetForm() {
     row.classList.add('inactive');
     row.querySelectorAll('.disp-btn').forEach(b => b.classList.remove('selected'));
   }
+  document.getElementById('chep-docket-field').classList.add('hidden');
+  document.getElementById('chep-docket').value = '';
 }

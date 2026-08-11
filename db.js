@@ -47,6 +47,9 @@ const migrations = [
   ['loscam_disposition','TEXT'],
   ['plain_count',       'INTEGER DEFAULT 0'],
   ['plain_disposition', 'TEXT'],
+  ['transport_name',    'TEXT'],
+  ['temperature',       'TEXT'],
+  ['chep_docket',       'TEXT'],
 ];
 for (const [col, def] of migrations) {
   if (!existingCols.includes(col)) {

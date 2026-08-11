@@ -85,6 +85,9 @@ function renderTable(rows) {
       <td>${palletCell(r)}</td>
       <td style="text-align:center">${r.num_cartons || 0}</td>
       <td style="text-align:center">${r.num_satchels || 0}</td>
+      <td>${esc(r.transport_name) || ''}</td>
+      <td>${esc(r.temperature) || ''}</td>
+      <td>${esc(r.chep_docket) || ''}</td>
       <td><span class="badge ${badgeCls}">${esc(r.condition)}</span></td>
       <td>${esc(r.recipient_name) || ''}</td>
       <td style="max-width:180px;word-break:break-word">${esc(r.notes) || ''}</td>

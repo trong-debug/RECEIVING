@@ -32,6 +32,8 @@ app.post('/api/deliveries', (req, res) => {
     chep_count, chep_disposition,
     loscam_count, loscam_disposition,
     plain_count, plain_disposition,
+    transport_name, temperature,
+    chep_docket,
     condition, recipient_name, notes
   } = req.body;
 
@@ -50,6 +52,8 @@ app.post('/api/deliveries', (req, res) => {
        chep_count, chep_disposition,
        loscam_count, loscam_disposition,
        plain_count, plain_disposition,
+       transport_name, temperature,
+       chep_docket,
        condition, recipient_name, notes)
     VALUES
       (@driver_name, @site_name, @address, @arrived_at,
@@ -57,6 +61,8 @@ app.post('/api/deliveries', (req, res) => {
        @chep_count, @chep_disposition,
        @loscam_count, @loscam_disposition,
        @plain_count, @plain_disposition,
+       @transport_name, @temperature,
+       @chep_docket,
        @condition, @recipient_name, @notes)
   `);
 
@@ -73,6 +79,9 @@ app.post('/api/deliveries', (req, res) => {
     loscam_disposition: loscam > 0 ? (loscam_disposition || null) : null,
     plain_count: plain,
     plain_disposition: plain > 0 ? (plain_disposition || null) : null,
+    transport_name: transport_name || null,
+    temperature: temperature || null,
+    chep_docket: chep_docket || null,
     condition: condition || 'Good',
     recipient_name: recipient_name || null,
     notes: notes || null
@@ -123,7 +132,7 @@ app.get('/api/deliveries/csv', (req, res) => {
 
   const headers = ['ID','Driver','Site','Address','Arrived At',
     'CHEP Count','CHEP Disposition','LOSCAM Count','LOSCAM Disposition','PLAIN Count','PLAIN Disposition',
-    'Total Pallets','Cartons','Satchels','Condition','Recipient','Notes','Submitted At'];
+    'Total Pallets','Cartons','Satchels','Transport Name','Temperature','CHEP Docket','Condition','Recipient','Notes','Submitted At'];
   const csv = [
     headers.join(','),
     ...rows.map(r => [
@@ -133,6 +142,8 @@ app.get('/api/deliveries/csv', (req, res) => {
       r.loscam_count || 0, csv_esc(r.loscam_disposition),
       r.plain_count || 0, csv_esc(r.plain_disposition),
       r.num_pallets || 0, r.num_cartons || 0, r.num_satchels || 0,
+      csv_esc(r.transport_name), csv_esc(r.temperature),
+      csv_esc(r.chep_docket),
       csv_esc(r.condition), csv_esc(r.recipient_name), csv_esc(r.notes), r.submitted_at
     ].join(','))
   ].join('\n');

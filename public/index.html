@@ -94,6 +94,10 @@
               <button type="button" class="disp-btn" id="chep-Exchanged" onclick="setPalletDisp('chep','Exchanged')">Exchanged</button>
               <button type="button" class="disp-btn" id="chep-Transfer"  onclick="setPalletDisp('chep','Transfer')">Transfer</button>
             </div>
+            <div class="field hidden" id="chep-docket-field">
+              <label for="chep-docket">CHEP Docket Number(s)</label>
+              <input type="text" id="chep-docket" placeholder="Enter docket number(s)">
+            </div>
           </div>
 
           <div class="pallet-divider"></div>
@@ -145,6 +149,14 @@
             <label for="num-satchels">Satchels</label>
             <input type="number" id="num-satchels" min="0" value="0" inputmode="numeric">
           </div>
+        </div>
+        <div class="field">
+          <label for="transport-name">Transport Name</label>
+          <input type="text" id="transport-name" placeholder="e.g. StarTrack, Toll, TNT">
+        </div>
+        <div class="field">
+          <label for="temperature">Temperature</label>
+          <input type="text" id="temperature" placeholder="e.g. Ambient, Chilled, Frozen">
         </div>
       </section>
 
