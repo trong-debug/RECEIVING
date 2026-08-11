@@ -129,9 +129,9 @@
             <div class="pallet-top">
               <span class="pallet-badge pallet-chep">CHEP</span>
               <div class="pallet-counter">
-                <button type="button" class="pallet-btn" onclick="adjPallet('chep',-1)">−</button>
+                <button type="button" class="pallet-btn" onmousedown="startHold('chep',-1,event)" ontouchstart="startHold('chep',-1,event)" onmouseup="stopHold()" onmouseleave="stopHold()" ontouchend="stopHold()">−</button>
                 <span class="pallet-num" id="chep-count">0</span>
-                <button type="button" class="pallet-btn" onclick="adjPallet('chep',1)">+</button>
+                <button type="button" class="pallet-btn" onmousedown="startHold('chep',1,event)" ontouchstart="startHold('chep',1,event)" onmouseup="stopHold()" onmouseleave="stopHold()" ontouchend="stopHold()">+</button>
               </div>
             </div>
             <div class="disp-row inactive" id="chep-disp-row">
@@ -151,9 +151,9 @@
             <div class="pallet-top">
               <span class="pallet-badge pallet-loscam">LOSCAM</span>
               <div class="pallet-counter">
-                <button type="button" class="pallet-btn" onclick="adjPallet('loscam',-1)">−</button>
+                <button type="button" class="pallet-btn" onmousedown="startHold('loscam',-1,event)" ontouchstart="startHold('loscam',-1,event)" onmouseup="stopHold()" onmouseleave="stopHold()" ontouchend="stopHold()">−</button>
                 <span class="pallet-num" id="loscam-count">0</span>
-                <button type="button" class="pallet-btn" onclick="adjPallet('loscam',1)">+</button>
+                <button type="button" class="pallet-btn" onmousedown="startHold('loscam',1,event)" ontouchstart="startHold('loscam',1,event)" onmouseup="stopHold()" onmouseleave="stopHold()" ontouchend="stopHold()">+</button>
               </div>
             </div>
             <div class="disp-row inactive" id="loscam-disp-row">
@@ -169,9 +169,9 @@
             <div class="pallet-top">
               <span class="pallet-badge pallet-plain">PLAIN</span>
               <div class="pallet-counter">
-                <button type="button" class="pallet-btn" onclick="adjPallet('plain',-1)">−</button>
+                <button type="button" class="pallet-btn" onmousedown="startHold('plain',-1,event)" ontouchstart="startHold('plain',-1,event)" onmouseup="stopHold()" onmouseleave="stopHold()" ontouchend="stopHold()">−</button>
                 <span class="pallet-num" id="plain-count">0</span>
-                <button type="button" class="pallet-btn" onclick="adjPallet('plain',1)">+</button>
+                <button type="button" class="pallet-btn" onmousedown="startHold('plain',1,event)" ontouchstart="startHold('plain',1,event)" onmouseup="stopHold()" onmouseleave="stopHold()" ontouchend="stopHold()">+</button>
               </div>
             </div>
             <div class="disp-row inactive" id="plain-disp-row">

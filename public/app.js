@@ -1,3 +1,23 @@
+// ── Hold-to-repeat for +/- buttons ────────────────────────────────────────
+
+let holdTimer = null;
+let holdInterval = null;
+
+function startHold(type, delta, e) {
+  if (e && e.cancelable) e.preventDefault(); // prevent touch → mousedown double-fire
+  adjPallet(type, delta);
+  holdTimer = setTimeout(() => {
+    holdInterval = setInterval(() => adjPallet(type, delta), 80);
+  }, 450);
+}
+
+function stopHold() {
+  clearTimeout(holdTimer);
+  clearInterval(holdInterval);
+  holdTimer = null;
+  holdInterval = null;
+}
+
 // ── Pallet state ───────────────────────────────────────────────────────────
 
 const palletCounts = { chep: 0, loscam: 0, plain: 0 };
