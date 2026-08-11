@@ -306,10 +306,9 @@ textarea { resize: vertical; }
 .btn-manage { flex-shrink: 0; width: 36px; height: 36px; background: none; border: 1px solid var(--border); border-radius: 8px; font-size: 16px; cursor: pointer; color: var(--text-muted); display: flex; align-items: center; justify-content: center; }
 .btn-manage:hover { background: var(--bg); color: var(--brand); border-color: var(--brand); }
 .input-readonly { background: var(--bg); color: var(--text-muted); cursor: default; }
-.offset-btns { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
-.offset-btn { padding: 7px 12px; background: #fff; border: 1px solid var(--border); border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; color: var(--text); }
-.offset-btn:hover { background: var(--brand-light); border-color: var(--brand); color: var(--brand); }
-.offset-btn.selected { background: var(--brand); border-color: var(--brand); color: #fff; }
+.dispatch-offset-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.dispatch-offset-row input { width: 90px; }
+.dispatch-offset-label { font-size: 14px; color: var(--text-muted); white-space: nowrap; }
 
 /* ── Manage modal ────────────────────────────────────────── */
 .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px; }

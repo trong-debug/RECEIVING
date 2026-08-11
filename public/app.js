@@ -69,21 +69,17 @@ function closeManage(e) {
   document.getElementById('manage-modal').classList.add('hidden');
 }
 
-// ── Dispatch time offset buttons ───────────────────────────────────────────
+// ── Dispatch time offset input ─────────────────────────────────────────────
 
-let activeOffsetBtn = null;
-
-function setDispatchOffset(mins) {
+function updateDispatchFromOffset() {
   const arrivedVal = document.getElementById('arrived-at').value;
-  if (!arrivedVal) { showError('Please set Arrived At time first.'); return; }
+  const mins = parseInt(document.getElementById('dispatch-offset').value);
+  if (!arrivedVal || isNaN(mins) || mins < 0) return;
   const base = new Date(arrivedVal);
   base.setMinutes(base.getMinutes() + mins);
   const pad = n => String(n).padStart(2, '0');
-  const dt = `${base.getFullYear()}-${pad(base.getMonth()+1)}-${pad(base.getDate())}T${pad(base.getHours())}:${pad(base.getMinutes())}`;
-  document.getElementById('dispatch-time').value = dt;
-  document.querySelectorAll('.offset-btn').forEach(b => b.classList.remove('selected'));
-  document.getElementById('dispatch-time').previousElementSibling.querySelectorAll('.offset-btn')
-    .forEach(b => { if (b.textContent === `+${mins} min`) b.classList.add('selected'); });
+  document.getElementById('dispatch-time').value =
+    `${base.getFullYear()}-${pad(base.getMonth()+1)}-${pad(base.getDate())}T${pad(base.getHours())}:${pad(base.getMinutes())}`;
 }
 
 // ── Direction selection ────────────────────────────────────────────────────
@@ -206,6 +202,8 @@ function toggleNew(selectId, fieldId) {
   else hide(field);
 }
 
+document.getElementById('dispatch-offset').addEventListener('input', updateDispatchFromOffset);
+document.getElementById('arrived-at').addEventListener('change', updateDispatchFromOffset);
 document.getElementById('driver-select').addEventListener('change', () => toggleNew('driver-select', 'new-driver-field'));
 document.getElementById('site-select').addEventListener('change', () => toggleNew('site-select', 'new-site-field'));
 document.getElementById('client-select').addEventListener('change', () => toggleNew('client-select', 'new-client-field'));
@@ -335,8 +333,8 @@ function resetForm() {
   hide(document.getElementById('new-client-field'));
   selectedDirection = null;
   document.querySelectorAll('#direction-btn-row .disp-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById('dispatch-offset').value = '';
   document.getElementById('dispatch-time').value = '';
-  document.querySelectorAll('.offset-btn').forEach(b => b.classList.remove('selected'));
   hide(document.getElementById('new-transport-field'));
   hide(document.getElementById('new-recipient-field'));
   for (const type of ['chep', 'loscam', 'plain']) {
