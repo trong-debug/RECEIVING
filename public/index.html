@@ -197,8 +197,14 @@
         </div>
 
         <div class="field">
-          <label for="recipient">Received By (name)</label>
-          <input type="text" id="recipient" placeholder="Name of person who received the delivery">
+          <label for="recipient-select">Received By (name)</label>
+          <select id="recipient-select">
+            <option value="">— Select recipient —</option>
+          </select>
+        </div>
+        <div class="field hidden" id="new-recipient-field">
+          <label for="new-recipient">Enter recipient name</label>
+          <input type="text" id="new-recipient" placeholder="Name of person who received the delivery">
         </div>
       </section>
 

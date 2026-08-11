@@ -60,10 +60,11 @@ function hide(el) { el.classList.add('hidden'); }
 document.getElementById('arrived-at').value = localDatetimeValue();
 
 async function loadDropdowns() {
-  const [drivers, sites, transports] = await Promise.all([
+  const [drivers, sites, transports, recipients] = await Promise.all([
     fetch('/api/drivers').then(r => r.json()),
     fetch('/api/sites').then(r => r.json()),
-    fetch('/api/transports').then(r => r.json())
+    fetch('/api/transports').then(r => r.json()),
+    fetch('/api/recipients').then(r => r.json())
   ]);
 
   const driverSel = document.getElementById('driver-select');
@@ -102,6 +103,17 @@ async function loadDropdowns() {
   addTransportOpt.textContent = '+ Add new carrier…';
   transportSel.appendChild(addTransportOpt);
 
+  const recipientSel = document.getElementById('recipient-select');
+  recipients.forEach(name => {
+    const opt = document.createElement('option');
+    opt.value = name; opt.textContent = name;
+    recipientSel.appendChild(opt);
+  });
+  const addRecipientOpt = document.createElement('option');
+  addRecipientOpt.value = '__new__';
+  addRecipientOpt.textContent = '+ Add new recipient…';
+  recipientSel.appendChild(addRecipientOpt);
+
   // Pre-fill address when site selected
   const siteMap = {};
   sites.forEach(s => { if (s.address) siteMap[s.name] = s.address; });
@@ -122,6 +134,7 @@ function toggleNew(selectId, fieldId) {
 document.getElementById('driver-select').addEventListener('change', () => toggleNew('driver-select', 'new-driver-field'));
 document.getElementById('site-select').addEventListener('change', () => toggleNew('site-select', 'new-site-field'));
 document.getElementById('transport-select').addEventListener('change', () => toggleNew('transport-select', 'new-transport-field'));
+document.getElementById('recipient-select').addEventListener('change', () => toggleNew('recipient-select', 'new-recipient-field'));
 
 loadDropdowns();
 
@@ -175,7 +188,7 @@ document.getElementById('delivery-form').addEventListener('submit', async e => {
     temperature_value: document.getElementById('temperature-value').value.trim() || null,
     chep_docket: document.getElementById('chep-docket').value.trim() || null,
     condition: document.querySelector('input[name="condition"]:checked').value,
-    recipient_name: document.getElementById('recipient').value.trim() || null,
+    recipient_name: (() => { const s = document.getElementById('recipient-select').value; return s === '__new__' ? document.getElementById('new-recipient').value.trim() || null : s || null; })(),
     notes: document.getElementById('notes').value.trim() || null
   };
 
@@ -240,6 +253,7 @@ function resetForm() {
   hide(document.getElementById('new-driver-field'));
   hide(document.getElementById('new-site-field'));
   hide(document.getElementById('new-transport-field'));
+  hide(document.getElementById('new-recipient-field'));
   for (const type of ['chep', 'loscam', 'plain']) {
     palletCounts[type] = 0;
     palletDisp[type]   = null;

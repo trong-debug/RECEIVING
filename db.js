@@ -41,6 +41,11 @@ db.exec(`
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL UNIQUE
   );
+
+  CREATE TABLE IF NOT EXISTS recipients (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL UNIQUE
+  );
 `);
 
 // Migrate existing DB — add pallet columns if missing

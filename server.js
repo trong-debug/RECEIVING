@@ -95,6 +95,7 @@ app.post('/api/deliveries', (req, res) => {
   db.prepare('INSERT OR IGNORE INTO drivers (name) VALUES (?)').run(driver_name);
   db.prepare('INSERT OR IGNORE INTO sites (name, address) VALUES (?, ?)').run(site_name, address || null);
   if (transport_name) db.prepare('INSERT OR IGNORE INTO transports (name) VALUES (?)').run(transport_name);
+  if (recipient_name) db.prepare('INSERT OR IGNORE INTO recipients (name) VALUES (?)').run(recipient_name);
 
   const newRecord = db.prepare('SELECT * FROM deliveries WHERE id = ?').get(result.lastInsertRowid);
   syncToSheets(newRecord); // fire-and-forget
@@ -186,6 +187,10 @@ app.get('/api/sites', (_req, res) => {
 
 app.get('/api/transports', (_req, res) => {
   res.json(db.prepare('SELECT name FROM transports ORDER BY name').all().map(r => r.name));
+});
+
+app.get('/api/recipients', (_req, res) => {
+  res.json(db.prepare('SELECT name FROM recipients ORDER BY name').all().map(r => r.name));
 });
 
 // ── Health check ─────────────────────────────────────────────────────────────
