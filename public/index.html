@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Be Cool Couriers — Delivery Drop-off</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="driver-page">
+
+  <header>
+    <div class="logo">Be Cool Couriers</div>
+    <h1>Delivery Drop-off</h1>
+    <p class="subtitle">Fill in your details when you arrive at the site</p>
+  </header>
+
+  <main>
+    <div id="success-banner" class="success-banner hidden">
+      <div class="success-icon">✓</div>
+      <div>
+        <strong>Delivery recorded!</strong>
+        <p id="success-msg"></p>
+      </div>
+      <button class="btn-link" onclick="resetForm()">Submit another</button>
+    </div>
+
+    <form id="delivery-form" novalidate>
+
+      <!-- Driver -->
+      <section class="card">
+        <h2>Driver Details</h2>
+
+        <div class="field">
+          <label for="driver-select">Your Name <span class="req">*</span></label>
+          <select id="driver-select">
+            <option value="">— Select your name —</option>
+          </select>
+        </div>
+
+        <div class="field hidden" id="new-driver-field">
+          <label for="new-driver">Enter your name <span class="req">*</span></label>
+          <input type="text" id="new-driver" placeholder="Full name" autocomplete="name">
+        </div>
+      </section>
+
+      <!-- Site -->
+      <section class="card">
+        <h2>Delivery Site</h2>
+
+        <div class="field">
+          <label for="site-select">Site Name <span class="req">*</span></label>
+          <select id="site-select">
+            <option value="">— Select site —</option>
+          </select>
+        </div>
+
+        <div class="field hidden" id="new-site-field">
+          <label for="new-site">Site Name <span class="req">*</span></label>
+          <input type="text" id="new-site" placeholder="Business / site name">
+        </div>
+
+        <div class="field">
+          <label for="address">Address</label>
+          <input type="text" id="address" placeholder="Street address">
+        </div>
+      </section>
+
+      <!-- Time -->
+      <section class="card">
+        <h2>Arrival Time</h2>
+
+        <div class="field">
+          <label for="arrived-at">Arrived At <span class="req">*</span></label>
+          <input type="datetime-local" id="arrived-at" required>
+          <p class="hint">Set to now automatically — adjust if needed</p>
+        </div>
+      </section>
+
+      <!-- Stock -->
+      <section class="card">
+        <h2>Stock Delivered</h2>
+        <div class="stock-grid">
+          <div class="field">
+            <label for="num-pallets">Pallets</label>
+            <input type="number" id="num-pallets" min="0" value="0" inputmode="numeric">
+          </div>
+          <div class="field">
+            <label for="num-cartons">Cartons</label>
+            <input type="number" id="num-cartons" min="0" value="0" inputmode="numeric">
+          </div>
+          <div class="field">
+            <label for="num-satchels">Satchels</label>
+            <input type="number" id="num-satchels" min="0" value="0" inputmode="numeric">
+          </div>
+        </div>
+      </section>
+
+      <!-- Condition & Recipient -->
+      <section class="card">
+        <h2>Delivery Condition</h2>
+
+        <div class="field">
+          <label>Stock Condition <span class="req">*</span></label>
+          <div class="radio-group">
+            <label class="radio-label">
+              <input type="radio" name="condition" value="Good" checked>
+              <span class="radio-pill good">Good</span>
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="condition" value="Damaged">
+              <span class="radio-pill damaged">Damaged</span>
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="condition" value="Partial">
+              <span class="radio-pill partial">Partial</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="recipient">Received By (name)</label>
+          <input type="text" id="recipient" placeholder="Name of person who received the delivery">
+        </div>
+      </section>
+
+      <!-- Notes -->
+      <section class="card">
+        <h2>Notes</h2>
+        <div class="field">
+          <label for="notes">Additional Notes</label>
+          <textarea id="notes" rows="3" placeholder="Any issues, access info, or extra details…"></textarea>
+        </div>
+      </section>
+
+      <div class="submit-row">
+        <button type="submit" class="btn-submit" id="submit-btn">
+          <span id="btn-text">Submit Drop-off Record</span>
+          <span id="btn-spinner" class="spinner hidden"></span>
+        </button>
+      </div>
+
+      <div id="error-msg" class="error-msg hidden"></div>
+
+    </form>
+  </main>
+
+  <footer>
+    <a href="/admin">Admin View →</a>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

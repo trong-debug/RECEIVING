@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Be Cool Couriers — Delivery Records</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="admin-page">
+
+  <header>
+    <div class="logo">Be Cool Couriers</div>
+    <h1>Delivery Records</h1>
+    <p class="subtitle">Drop-off history and logs</p>
+  </header>
+
+  <main>
+
+    <!-- Filters -->
+    <section class="card filters-card">
+      <h2>Filter Records</h2>
+      <div class="filters-grid">
+        <div class="field">
+          <label for="f-driver">Driver</label>
+          <select id="f-driver">
+            <option value="">All drivers</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="f-site">Site</label>
+          <select id="f-site">
+            <option value="">All sites</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="f-from">From Date</label>
+          <input type="date" id="f-from">
+        </div>
+        <div class="field">
+          <label for="f-to">To Date</label>
+          <input type="date" id="f-to">
+        </div>
+      </div>
+      <div class="filter-actions">
+        <button class="btn-primary" onclick="loadRecords()">Search</button>
+        <button class="btn-secondary" onclick="clearFilters()">Clear</button>
+        <button class="btn-export" onclick="exportCSV()">Export CSV</button>
+      </div>
+    </section>
+
+    <!-- Stats row -->
+    <div class="stats-row" id="stats-row"></div>
+
+    <!-- Table -->
+    <section class="card table-card">
+      <div id="loading" class="loading-msg">Loading records…</div>
+      <div id="table-wrap" class="table-wrap hidden">
+        <table id="records-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Driver</th>
+              <th>Site</th>
+              <th>Arrived</th>
+              <th>Pallets</th>
+              <th>Cartons</th>
+              <th>Satchels</th>
+              <th>Condition</th>
+              <th>Received By</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody id="records-tbody"></tbody>
+        </table>
+      </div>
+      <div id="no-records" class="no-records hidden">No records found.</div>
+    </section>
+
+  </main>
+
+  <footer>
+    <a href="/">Driver Form →</a>
+  </footer>
+
+  <script src="admin.js"></script>
+</body>
+</html>

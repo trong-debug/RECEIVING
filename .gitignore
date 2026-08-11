@@ -1,0 +1,4 @@
+node_modules/
+deliveries.db
+*.db-shm
+*.db-wal
