@@ -300,6 +300,26 @@ textarea { resize: vertical; }
 .btn-delete-row { padding: 4px 10px; background: none; color: var(--red); border: 1px solid var(--red); border-radius: 6px; font-size: 12px; cursor: pointer; white-space: nowrap; }
 .btn-delete-row:hover { background: var(--red-bg); }
 
+/* ── Select with manage button ───────────────────────────── */
+.select-with-manage { display: flex; gap: 8px; align-items: center; }
+.select-with-manage select { flex: 1; }
+.btn-manage { flex-shrink: 0; width: 36px; height: 36px; background: none; border: 1px solid var(--border); border-radius: 8px; font-size: 16px; cursor: pointer; color: var(--text-muted); display: flex; align-items: center; justify-content: center; }
+.btn-manage:hover { background: var(--bg); color: var(--brand); border-color: var(--brand); }
+
+/* ── Manage modal ────────────────────────────────────────── */
+.modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px; }
+.modal-box { background: var(--card-bg); border-radius: var(--radius); width: 100%; max-width: 360px; box-shadow: 0 8px 32px rgba(0,0,0,.2); overflow: hidden; }
+.modal-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--border); }
+.modal-header h3 { font-size: 16px; font-weight: 700; }
+.modal-close { background: none; border: none; font-size: 22px; cursor: pointer; color: var(--text-muted); line-height: 1; padding: 0 4px; }
+.manage-list { list-style: none; padding: 8px 0; max-height: 320px; overflow-y: auto; }
+.manage-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 20px; gap: 12px; }
+.manage-item:hover { background: var(--bg); }
+.manage-item span { flex: 1; font-size: 15px; }
+.btn-delete-entry { background: none; border: none; color: var(--red); font-size: 16px; cursor: pointer; padding: 4px 6px; border-radius: 6px; line-height: 1; }
+.btn-delete-entry:hover { background: var(--red-bg); }
+.manage-empty { padding: 16px 20px; color: var(--text-muted); font-size: 14px; }
+
 /* ── Spinner ──────────────────────────────────────────────── */
 .spinner {
   width: 18px; height: 18px;

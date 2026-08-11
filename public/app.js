@@ -33,6 +33,42 @@ function setPalletDisp(type, disp) {
   }
 }
 
+// ── Manage lists (delete entries) ─────────────────────────────────────────
+
+let currentManageType = null;
+const selectIdMap = { drivers: 'driver-select', sites: 'site-select', transports: 'transport-select', recipients: 'recipient-select' };
+
+async function openManage(type, label) {
+  currentManageType = type;
+  document.getElementById('manage-title').textContent = 'Edit ' + label;
+  await refreshManageList();
+  document.getElementById('manage-modal').classList.remove('hidden');
+}
+
+async function refreshManageList() {
+  const type = currentManageType;
+  const items = await fetch('/api/' + type).then(r => r.json());
+  const names = items.map(i => typeof i === 'string' ? i : i.name);
+  const ul = document.getElementById('manage-list');
+  ul.innerHTML = names.length
+    ? names.map(n => `<li class="manage-item"><span>${n}</span><button type="button" class="btn-delete-entry" onclick="deleteEntry('${type}','${n.replace(/'/g,"\\'")}')">✕</button></li>`).join('')
+    : '<li class="manage-empty">No entries saved yet.</li>';
+}
+
+async function deleteEntry(type, name) {
+  await fetch('/api/' + type + '/' + encodeURIComponent(name), { method: 'DELETE' });
+  // Remove from the select dropdown too
+  const sel = document.getElementById(selectIdMap[type]);
+  const opt = [...sel.options].find(o => o.value === name);
+  if (opt) sel.removeChild(opt);
+  await refreshManageList();
+}
+
+function closeManage(e) {
+  if (e && e.target !== document.getElementById('manage-modal')) return;
+  document.getElementById('manage-modal').classList.add('hidden');
+}
+
 // ── Temperature selection ──────────────────────────────────────────────────
 
 let selectedTemp = null;

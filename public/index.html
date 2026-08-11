@@ -32,9 +32,12 @@
 
         <div class="field">
           <label for="driver-select">Driver Name <span class="req">*</span></label>
-          <select id="driver-select">
-            <option value="">— Select your name —</option>
-          </select>
+          <div class="select-with-manage">
+            <select id="driver-select">
+              <option value="">— Select your name —</option>
+            </select>
+            <button type="button" class="btn-manage" onclick="openManage('drivers','Driver Names')" title="Edit list">✎</button>
+          </div>
         </div>
 
         <div class="field hidden" id="new-driver-field">
@@ -49,9 +52,12 @@
 
         <div class="field">
           <label for="site-select">Site Name <span class="req">*</span></label>
-          <select id="site-select">
-            <option value="">— Select site —</option>
-          </select>
+          <div class="select-with-manage">
+            <select id="site-select">
+              <option value="">— Select site —</option>
+            </select>
+            <button type="button" class="btn-manage" onclick="openManage('sites','Sites')" title="Edit list">✎</button>
+          </div>
         </div>
 
         <div class="field hidden" id="new-site-field">
@@ -152,9 +158,12 @@
         </div>
         <div class="field">
           <label for="transport-select">Transport Name</label>
-          <select id="transport-select">
-            <option value="">— Select carrier —</option>
-          </select>
+          <div class="select-with-manage">
+            <select id="transport-select">
+              <option value="">— Select carrier —</option>
+            </select>
+            <button type="button" class="btn-manage" onclick="openManage('transports','Carriers')" title="Edit list">✎</button>
+          </div>
         </div>
         <div class="field hidden" id="new-transport-field">
           <label for="new-transport">Enter carrier name</label>
@@ -198,9 +207,12 @@
 
         <div class="field">
           <label for="recipient-select">Received By (name)</label>
-          <select id="recipient-select">
-            <option value="">— Select recipient —</option>
-          </select>
+          <div class="select-with-manage">
+            <select id="recipient-select">
+              <option value="">— Select recipient —</option>
+            </select>
+            <button type="button" class="btn-manage" onclick="openManage('recipients','Recipients')" title="Edit list">✎</button>
+          </div>
         </div>
         <div class="field hidden" id="new-recipient-field">
           <label for="new-recipient">Enter recipient name</label>
@@ -232,6 +244,17 @@
   <footer>
     <a href="/admin">Admin View →</a>
   </footer>
+
+  <!-- Manage list modal -->
+  <div id="manage-modal" class="modal-backdrop hidden" onclick="closeManage(event)">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 id="manage-title">Edit List</h3>
+        <button type="button" class="modal-close" onclick="closeManage()">×</button>
+      </div>
+      <ul id="manage-list" class="manage-list"></ul>
+    </div>
+  </div>
 
   <script src="app.js"></script>
 </body>

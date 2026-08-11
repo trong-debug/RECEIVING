@@ -193,6 +193,11 @@ app.get('/api/recipients', (_req, res) => {
   res.json(db.prepare('SELECT name FROM recipients ORDER BY name').all().map(r => r.name));
 });
 
+app.delete('/api/drivers/:name',    (req, res) => { db.prepare('DELETE FROM drivers    WHERE name = ?').run(decodeURIComponent(req.params.name)); res.json({ ok: true }); });
+app.delete('/api/sites/:name',      (req, res) => { db.prepare('DELETE FROM sites      WHERE name = ?').run(decodeURIComponent(req.params.name)); res.json({ ok: true }); });
+app.delete('/api/transports/:name', (req, res) => { db.prepare('DELETE FROM transports WHERE name = ?').run(decodeURIComponent(req.params.name)); res.json({ ok: true }); });
+app.delete('/api/recipients/:name', (req, res) => { db.prepare('DELETE FROM recipients WHERE name = ?').run(decodeURIComponent(req.params.name)); res.json({ ok: true }); });
+
 // ── Health check ─────────────────────────────────────────────────────────────
 
 app.get('/health', (_req, res) => res.json({ status: 'ok' }));
