@@ -82,6 +82,26 @@
         </div>
       </section>
 
+      <!-- Client -->
+      <section class="card">
+        <h2>Client Name</h2>
+
+        <div class="field">
+          <label for="client-select">Client Name</label>
+          <div class="select-with-manage">
+            <select id="client-select">
+              <option value="">— Select client —</option>
+            </select>
+            <button type="button" class="btn-manage" onclick="openManage('clients','Client Names')" title="Edit list">✎</button>
+          </div>
+        </div>
+
+        <div class="field hidden" id="new-client-field">
+          <label for="new-client">Enter client name</label>
+          <input type="text" id="new-client" placeholder="Client / company name">
+        </div>
+      </section>
+
       <!-- Pallets -->
       <section class="card">
         <h2>Pallets</h2>

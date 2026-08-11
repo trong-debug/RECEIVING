@@ -35,6 +35,7 @@ app.post('/api/deliveries', (req, res) => {
     chep_count, chep_disposition,
     loscam_count, loscam_disposition,
     plain_count, plain_disposition,
+    client_name,
     transport_name, temperature, temperature_value,
     chep_docket,
     condition, recipient_name, notes
@@ -55,6 +56,7 @@ app.post('/api/deliveries', (req, res) => {
        chep_count, chep_disposition,
        loscam_count, loscam_disposition,
        plain_count, plain_disposition,
+       client_name,
        transport_name, temperature, temperature_value,
        chep_docket,
        condition, recipient_name, notes)
@@ -64,6 +66,7 @@ app.post('/api/deliveries', (req, res) => {
        @chep_count, @chep_disposition,
        @loscam_count, @loscam_disposition,
        @plain_count, @plain_disposition,
+       @client_name,
        @transport_name, @temperature, @temperature_value,
        @chep_docket,
        @condition, @recipient_name, @notes)
@@ -82,6 +85,7 @@ app.post('/api/deliveries', (req, res) => {
     loscam_disposition: loscam > 0 ? (loscam_disposition || null) : null,
     plain_count: plain,
     plain_disposition: plain > 0 ? (plain_disposition || null) : null,
+    client_name: client_name || null,
     transport_name: transport_name || null,
     temperature: temperature || null,
     temperature_value: temperature_value || null,
@@ -94,6 +98,7 @@ app.post('/api/deliveries', (req, res) => {
   // Persist new driver/site/transport names automatically
   db.prepare('INSERT OR IGNORE INTO drivers (name) VALUES (?)').run(driver_name);
   db.prepare('INSERT OR IGNORE INTO sites (name, address) VALUES (?, ?)').run(site_name, address || null);
+  if (client_name)    db.prepare('INSERT OR IGNORE INTO clients    (name) VALUES (?)').run(client_name);
   if (transport_name) db.prepare('INSERT OR IGNORE INTO transports (name) VALUES (?)').run(transport_name);
   if (recipient_name) db.prepare('INSERT OR IGNORE INTO recipients (name) VALUES (?)').run(recipient_name);
 
@@ -138,7 +143,7 @@ app.get('/api/deliveries/csv', (req, res) => {
 
   const headers = ['ID','Driver','Site','Address','Arrived At',
     'CHEP Count','CHEP Disposition','LOSCAM Count','LOSCAM Disposition','PLAIN Count','PLAIN Disposition',
-    'Total Pallets','Cartons','Satchels','Transport Name','Temperature Type','Temperature Value','CHEP Docket','Condition','Recipient','Notes','Submitted At'];
+    'Total Pallets','Cartons','Satchels','Client Name','Transport Name','Temperature Type','Temperature Value','CHEP Docket','Condition','Recipient','Notes','Submitted At'];
   const csv = [
     headers.join(','),
     ...rows.map(r => [
@@ -148,7 +153,7 @@ app.get('/api/deliveries/csv', (req, res) => {
       r.loscam_count || 0, csv_esc(r.loscam_disposition),
       r.plain_count || 0, csv_esc(r.plain_disposition),
       r.num_pallets || 0, r.num_cartons || 0, r.num_satchels || 0,
-      csv_esc(r.transport_name), csv_esc(r.temperature), csv_esc(r.temperature_value),
+      csv_esc(r.client_name), csv_esc(r.transport_name), csv_esc(r.temperature), csv_esc(r.temperature_value),
       csv_esc(r.chep_docket),
       csv_esc(r.condition), csv_esc(r.recipient_name), csv_esc(r.notes), r.submitted_at
     ].join(','))
@@ -185,6 +190,10 @@ app.get('/api/sites', (_req, res) => {
   res.json(db.prepare('SELECT name, address FROM sites ORDER BY name').all());
 });
 
+app.get('/api/clients', (_req, res) => {
+  res.json(db.prepare('SELECT name FROM clients ORDER BY name').all().map(r => r.name));
+});
+
 app.get('/api/transports', (_req, res) => {
   res.json(db.prepare('SELECT name FROM transports ORDER BY name').all().map(r => r.name));
 });
@@ -193,6 +202,7 @@ app.get('/api/recipients', (_req, res) => {
   res.json(db.prepare('SELECT name FROM recipients ORDER BY name').all().map(r => r.name));
 });
 
+app.delete('/api/clients/:name',    (req, res) => { db.prepare('DELETE FROM clients    WHERE name = ?').run(decodeURIComponent(req.params.name)); res.json({ ok: true }); });
 app.delete('/api/drivers/:name',    (req, res) => { db.prepare('DELETE FROM drivers    WHERE name = ?').run(decodeURIComponent(req.params.name)); res.json({ ok: true }); });
 app.delete('/api/sites/:name',      (req, res) => { db.prepare('DELETE FROM sites      WHERE name = ?').run(decodeURIComponent(req.params.name)); res.json({ ok: true }); });
 app.delete('/api/transports/:name', (req, res) => { db.prepare('DELETE FROM transports WHERE name = ?').run(decodeURIComponent(req.params.name)); res.json({ ok: true }); });

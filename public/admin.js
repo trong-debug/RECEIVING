@@ -82,6 +82,7 @@ function renderTable(rows) {
       <td><strong>${esc(r.driver_name)}</strong></td>
       <td>${esc(r.site_name)}${r.address ? `<br><small style="color:#888">${esc(r.address)}</small>` : ''}</td>
       <td style="white-space:nowrap">${formatDatetime(r.arrived_at)}</td>
+      <td>${esc(r.client_name) || ''}</td>
       <td>${palletCell(r)}</td>
       <td style="text-align:center">${r.num_cartons || 0}</td>
       <td style="text-align:center">${r.num_satchels || 0}</td>

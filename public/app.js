@@ -36,7 +36,7 @@ function setPalletDisp(type, disp) {
 // ── Manage lists (delete entries) ─────────────────────────────────────────
 
 let currentManageType = null;
-const selectIdMap = { drivers: 'driver-select', sites: 'site-select', transports: 'transport-select', recipients: 'recipient-select' };
+const selectIdMap = { clients: 'client-select', drivers: 'driver-select', sites: 'site-select', transports: 'transport-select', recipients: 'recipient-select' };
 
 async function openManage(type, label) {
   currentManageType = type;
@@ -96,9 +96,10 @@ function hide(el) { el.classList.add('hidden'); }
 document.getElementById('arrived-at').value = localDatetimeValue();
 
 async function loadDropdowns() {
-  const [drivers, sites, transports, recipients] = await Promise.all([
+  const [drivers, sites, clients, transports, recipients] = await Promise.all([
     fetch('/api/drivers').then(r => r.json()),
     fetch('/api/sites').then(r => r.json()),
+    fetch('/api/clients').then(r => r.json()),
     fetch('/api/transports').then(r => r.json()),
     fetch('/api/recipients').then(r => r.json())
   ]);
@@ -127,6 +128,17 @@ async function loadDropdowns() {
   addSiteOpt.value = '__new__';
   addSiteOpt.textContent = '+ Add new site…';
   siteSel.appendChild(addSiteOpt);
+
+  const clientSel = document.getElementById('client-select');
+  clients.forEach(name => {
+    const opt = document.createElement('option');
+    opt.value = name; opt.textContent = name;
+    clientSel.appendChild(opt);
+  });
+  const addClientOpt = document.createElement('option');
+  addClientOpt.value = '__new__';
+  addClientOpt.textContent = '+ Add new client…';
+  clientSel.appendChild(addClientOpt);
 
   const transportSel = document.getElementById('transport-select');
   transports.forEach(name => {
@@ -169,6 +181,7 @@ function toggleNew(selectId, fieldId) {
 
 document.getElementById('driver-select').addEventListener('change', () => toggleNew('driver-select', 'new-driver-field'));
 document.getElementById('site-select').addEventListener('change', () => toggleNew('site-select', 'new-site-field'));
+document.getElementById('client-select').addEventListener('change', () => toggleNew('client-select', 'new-client-field'));
 document.getElementById('transport-select').addEventListener('change', () => toggleNew('transport-select', 'new-transport-field'));
 document.getElementById('recipient-select').addEventListener('change', () => toggleNew('recipient-select', 'new-recipient-field'));
 
@@ -219,6 +232,7 @@ document.getElementById('delivery-form').addEventListener('submit', async e => {
     plain_disposition: palletDisp.plain,
     num_cartons:  parseInt(document.getElementById('num-cartons').value)  || 0,
     num_satchels: parseInt(document.getElementById('num-satchels').value) || 0,
+    client_name: (() => { const s = document.getElementById('client-select').value; return s === '__new__' ? document.getElementById('new-client').value.trim() || null : s || null; })(),
     transport_name: (() => { const s = document.getElementById('transport-select').value; return s === '__new__' ? document.getElementById('new-transport').value.trim() || null : s || null; })(),
     temperature: selectedTemp || null,
     temperature_value: document.getElementById('temperature-value').value.trim() || null,
@@ -288,6 +302,7 @@ function resetForm() {
   document.getElementById('arrived-at').value = localDatetimeValue();
   hide(document.getElementById('new-driver-field'));
   hide(document.getElementById('new-site-field'));
+  hide(document.getElementById('new-client-field'));
   hide(document.getElementById('new-transport-field'));
   hide(document.getElementById('new-recipient-field'));
   for (const type of ['chep', 'loscam', 'plain']) {

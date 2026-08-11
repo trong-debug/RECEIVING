@@ -42,6 +42,11 @@ db.exec(`
     name TEXT NOT NULL UNIQUE
   );
 
+  CREATE TABLE IF NOT EXISTS clients (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL UNIQUE
+  );
+
   CREATE TABLE IF NOT EXISTS recipients (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL UNIQUE
@@ -57,6 +62,7 @@ const migrations = [
   ['loscam_disposition','TEXT'],
   ['plain_count',       'INTEGER DEFAULT 0'],
   ['plain_disposition', 'TEXT'],
+  ['client_name',       'TEXT'],
   ['transport_name',    'TEXT'],
   ['temperature',       'TEXT'],
   ['temperature_value', 'TEXT'],
