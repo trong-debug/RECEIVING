@@ -45,15 +45,19 @@ async function loadRecords() {
 }
 
 function renderStats(rows) {
-  const totalPallets  = rows.reduce((s, r) => s + (r.num_pallets  || 0), 0);
+  const totalCHEP     = rows.reduce((s, r) => s + (r.chep_count   || 0), 0);
+  const totalLOSCAM   = rows.reduce((s, r) => s + (r.loscam_count || 0), 0);
+  const totalPLAIN    = rows.reduce((s, r) => s + (r.plain_count  || 0), 0);
   const totalCartons  = rows.reduce((s, r) => s + (r.num_cartons  || 0), 0);
   const totalSatchels = rows.reduce((s, r) => s + (r.num_satchels || 0), 0);
 
   const stats = [
-    { value: rows.length,    label: 'Drop-offs' },
-    { value: totalPallets,   label: 'Pallets' },
-    { value: totalCartons,   label: 'Cartons' },
-    { value: totalSatchels,  label: 'Satchels' }
+    { value: rows.length,               label: 'Drop-offs' },
+    { value: totalCHEP,                 label: 'CHEP Pallets' },
+    { value: totalLOSCAM,               label: 'LOSCAM Pallets' },
+    { value: totalPLAIN,                label: 'Plain Pallets' },
+    { value: totalCartons,              label: 'Cartons' },
+    { value: totalSatchels,             label: 'Satchels' }
   ];
 
   const row = document.getElementById('stats-row');
@@ -78,7 +82,7 @@ function renderTable(rows) {
       <td><strong>${esc(r.driver_name)}</strong></td>
       <td>${esc(r.site_name)}${r.address ? `<br><small style="color:#888">${esc(r.address)}</small>` : ''}</td>
       <td style="white-space:nowrap">${formatDatetime(r.arrived_at)}</td>
-      <td style="text-align:center">${r.num_pallets || 0}</td>
+      <td>${palletCell(r)}</td>
       <td style="text-align:center">${r.num_cartons || 0}</td>
       <td style="text-align:center">${r.num_satchels || 0}</td>
       <td><span class="badge ${badgeCls}">${esc(r.condition)}</span></td>
@@ -108,6 +112,15 @@ function clearFilters() {
   document.getElementById('f-from').value   = '';
   document.getElementById('f-to').value     = '';
   loadRecords();
+}
+
+function palletCell(r) {
+  const parts = [];
+  if (r.chep_count   > 0) parts.push(`<span class="pallet-chip chep-chip">${r.chep_count} CHEP</span> <span class="disp-chip">${esc(r.chep_disposition) || '?'}</span>`);
+  if (r.loscam_count > 0) parts.push(`<span class="pallet-chip loscam-chip">${r.loscam_count} LOSCAM</span> <span class="disp-chip">${esc(r.loscam_disposition) || '?'}</span>`);
+  if (r.plain_count  > 0) parts.push(`<span class="pallet-chip plain-chip">${r.plain_count} Plain</span> <span class="disp-chip">${esc(r.plain_disposition) || '?'}</span>`);
+  if (parts.length === 0 && r.num_pallets > 0) return `<span style="color:#888">${r.num_pallets} (legacy)</span>`;
+  return parts.length ? parts.join('<br>') : '<span style="color:#ccc">—</span>';
 }
 
 function formatDatetime(str) {

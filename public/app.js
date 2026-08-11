@@ -1,3 +1,29 @@
+// ── Pallet state ───────────────────────────────────────────────────────────
+
+const palletCounts = { chep: 0, loscam: 0, plain: 0 };
+const palletDisp   = { chep: null, loscam: null, plain: null };
+
+function adjPallet(type, delta) {
+  palletCounts[type] = Math.max(0, palletCounts[type] + delta);
+  document.getElementById(type + '-count').textContent = palletCounts[type];
+  const row = document.getElementById(type + '-disp-row');
+  if (palletCounts[type] === 0) {
+    row.classList.add('inactive');
+    palletDisp[type] = null;
+    row.querySelectorAll('.disp-btn').forEach(b => b.classList.remove('selected'));
+  } else {
+    row.classList.remove('inactive');
+  }
+}
+
+function setPalletDisp(type, disp) {
+  if (palletCounts[type] === 0) return;
+  palletDisp[type] = disp;
+  const row = document.getElementById(type + '-disp-row');
+  row.querySelectorAll('.disp-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById(type + '-' + disp).classList.add('selected');
+}
+
 // ── Helpers ────────────────────────────────────────────────────────────────
 
 function localDatetimeValue() {
@@ -91,12 +117,24 @@ document.getElementById('delivery-form').addEventListener('submit', async e => {
   if (!site_name)   { showError('Please select or enter a site name.'); return; }
   if (!arrived_at)  { showError('Please enter the arrival time.'); return; }
 
+  for (const type of ['chep', 'loscam', 'plain']) {
+    if (palletCounts[type] > 0 && !palletDisp[type]) {
+      showError(`Please select Exchanged or Transfer for ${type.toUpperCase()} pallets.`);
+      return;
+    }
+  }
+
   const payload = {
     driver_name,
     site_name,
     address: document.getElementById('address').value.trim() || null,
     arrived_at,
-    num_pallets:  parseInt(document.getElementById('num-pallets').value)  || 0,
+    chep_count:        palletCounts.chep,
+    chep_disposition:  palletDisp.chep,
+    loscam_count:      palletCounts.loscam,
+    loscam_disposition:palletDisp.loscam,
+    plain_count:       palletCounts.plain,
+    plain_disposition: palletDisp.plain,
     num_cartons:  parseInt(document.getElementById('num-cartons').value)  || 0,
     num_satchels: parseInt(document.getElementById('num-satchels').value) || 0,
     condition: document.querySelector('input[name="condition"]:checked').value,
@@ -120,14 +158,18 @@ document.getElementById('delivery-form').addEventListener('submit', async e => {
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Server error');
 
-    const parts = [
-      `${payload.num_pallets} pallet${payload.num_pallets !== 1 ? 's' : ''}`,
-      `${payload.num_cartons} carton${payload.num_cartons !== 1 ? 's' : ''}`,
-      `${payload.num_satchels} satchel${payload.num_satchels !== 1 ? 's' : ''}`
-    ].join(', ');
+    const palletParts = [];
+    if (palletCounts.chep   > 0) palletParts.push(`${palletCounts.chep} CHEP (${palletDisp.chep})`);
+    if (palletCounts.loscam > 0) palletParts.push(`${palletCounts.loscam} LOSCAM (${palletDisp.loscam})`);
+    if (palletCounts.plain  > 0) palletParts.push(`${palletCounts.plain} Plain (${palletDisp.plain})`);
+    const stockParts = [];
+    if (palletParts.length)      stockParts.push(palletParts.join(', '));
+    if (payload.num_cartons)     stockParts.push(`${payload.num_cartons} carton${payload.num_cartons !== 1 ? 's' : ''}`);
+    if (payload.num_satchels)    stockParts.push(`${payload.num_satchels} satchel${payload.num_satchels !== 1 ? 's' : ''}`);
 
     document.getElementById('success-msg').textContent =
-      `${driver_name} → ${site_name} at ${formatDatetime(arrived_at)} · ${parts}`;
+      `${driver_name} → ${site_name} at ${formatDatetime(arrived_at)}` +
+      (stockParts.length ? ` · ${stockParts.join(', ')}` : '');
 
     show(document.getElementById('success-banner'));
     hide(document.getElementById('delivery-form'));
@@ -160,4 +202,12 @@ function resetForm() {
   document.getElementById('arrived-at').value = localDatetimeValue();
   hide(document.getElementById('new-driver-field'));
   hide(document.getElementById('new-site-field'));
+  for (const type of ['chep', 'loscam', 'plain']) {
+    palletCounts[type] = 0;
+    palletDisp[type]   = null;
+    document.getElementById(type + '-count').textContent = '0';
+    const row = document.getElementById(type + '-disp-row');
+    row.classList.add('inactive');
+    row.querySelectorAll('.disp-btn').forEach(b => b.classList.remove('selected'));
+  }
 }

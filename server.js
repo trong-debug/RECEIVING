@@ -13,7 +13,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.post('/api/deliveries', (req, res) => {
   const {
     driver_name, site_name, address, arrived_at,
-    num_pallets, num_cartons, num_satchels,
+    num_cartons, num_satchels,
+    chep_count, chep_disposition,
+    loscam_count, loscam_disposition,
+    plain_count, plain_disposition,
     condition, recipient_name, notes
   } = req.body;
 
@@ -21,20 +24,40 @@ app.post('/api/deliveries', (req, res) => {
     return res.status(400).json({ error: 'driver_name, site_name, and arrived_at are required' });
   }
 
+  const chep   = Math.max(0, parseInt(chep_count)   || 0);
+  const loscam = Math.max(0, parseInt(loscam_count) || 0);
+  const plain  = Math.max(0, parseInt(plain_count)  || 0);
+
   const stmt = db.prepare(`
     INSERT INTO deliveries
-      (driver_name, site_name, address, arrived_at, num_pallets, num_cartons, num_satchels, condition, recipient_name, notes)
+      (driver_name, site_name, address, arrived_at,
+       num_pallets, num_cartons, num_satchels,
+       chep_count, chep_disposition,
+       loscam_count, loscam_disposition,
+       plain_count, plain_disposition,
+       condition, recipient_name, notes)
     VALUES
-      (@driver_name, @site_name, @address, @arrived_at, @num_pallets, @num_cartons, @num_satchels, @condition, @recipient_name, @notes)
+      (@driver_name, @site_name, @address, @arrived_at,
+       @num_pallets, @num_cartons, @num_satchels,
+       @chep_count, @chep_disposition,
+       @loscam_count, @loscam_disposition,
+       @plain_count, @plain_disposition,
+       @condition, @recipient_name, @notes)
   `);
 
   const result = stmt.run({
     driver_name, site_name,
     address: address || null,
     arrived_at,
-    num_pallets: num_pallets || 0,
-    num_cartons: num_cartons || 0,
-    num_satchels: num_satchels || 0,
+    num_pallets: chep + loscam + plain,
+    num_cartons: Math.max(0, parseInt(num_cartons) || 0),
+    num_satchels: Math.max(0, parseInt(num_satchels) || 0),
+    chep_count: chep,
+    chep_disposition: chep > 0 ? (chep_disposition || null) : null,
+    loscam_count: loscam,
+    loscam_disposition: loscam > 0 ? (loscam_disposition || null) : null,
+    plain_count: plain,
+    plain_disposition: plain > 0 ? (plain_disposition || null) : null,
     condition: condition || 'Good',
     recipient_name: recipient_name || null,
     notes: notes || null
@@ -80,12 +103,18 @@ app.get('/api/deliveries/csv', (req, res) => {
 
   const rows = db.prepare(query).all(...params);
 
-  const headers = ['ID','Driver','Site','Address','Arrived At','Pallets','Cartons','Satchels','Condition','Recipient','Notes','Submitted At'];
+  const headers = ['ID','Driver','Site','Address','Arrived At',
+    'CHEP Count','CHEP Disposition','LOSCAM Count','LOSCAM Disposition','PLAIN Count','PLAIN Disposition',
+    'Total Pallets','Cartons','Satchels','Condition','Recipient','Notes','Submitted At'];
   const csv = [
     headers.join(','),
     ...rows.map(r => [
       r.id, csv_esc(r.driver_name), csv_esc(r.site_name), csv_esc(r.address),
-      r.arrived_at, r.num_pallets, r.num_cartons, r.num_satchels,
+      r.arrived_at,
+      r.chep_count || 0, csv_esc(r.chep_disposition),
+      r.loscam_count || 0, csv_esc(r.loscam_disposition),
+      r.plain_count || 0, csv_esc(r.plain_disposition),
+      r.num_pallets || 0, r.num_cartons || 0, r.num_satchels || 0,
       csv_esc(r.condition), csv_esc(r.recipient_name), csv_esc(r.notes), r.submitted_at
     ].join(','))
   ].join('\n');

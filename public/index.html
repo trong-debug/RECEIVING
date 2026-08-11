@@ -76,14 +76,67 @@
         </div>
       </section>
 
+      <!-- Pallets -->
+      <section class="card">
+        <h2>Pallets</h2>
+        <div class="pallet-type-list">
+
+          <div class="pallet-entry">
+            <div class="pallet-top">
+              <span class="pallet-badge pallet-chep">CHEP</span>
+              <div class="pallet-counter">
+                <button type="button" class="pallet-btn" onclick="adjPallet('chep',-1)">−</button>
+                <span class="pallet-num" id="chep-count">0</span>
+                <button type="button" class="pallet-btn" onclick="adjPallet('chep',1)">+</button>
+              </div>
+            </div>
+            <div class="disp-row inactive" id="chep-disp-row">
+              <button type="button" class="disp-btn" id="chep-Exchanged" onclick="setPalletDisp('chep','Exchanged')">Exchanged</button>
+              <button type="button" class="disp-btn" id="chep-Transfer"  onclick="setPalletDisp('chep','Transfer')">Transfer</button>
+            </div>
+          </div>
+
+          <div class="pallet-divider"></div>
+
+          <div class="pallet-entry">
+            <div class="pallet-top">
+              <span class="pallet-badge pallet-loscam">LOSCAM</span>
+              <div class="pallet-counter">
+                <button type="button" class="pallet-btn" onclick="adjPallet('loscam',-1)">−</button>
+                <span class="pallet-num" id="loscam-count">0</span>
+                <button type="button" class="pallet-btn" onclick="adjPallet('loscam',1)">+</button>
+              </div>
+            </div>
+            <div class="disp-row inactive" id="loscam-disp-row">
+              <button type="button" class="disp-btn" id="loscam-Exchanged" onclick="setPalletDisp('loscam','Exchanged')">Exchanged</button>
+              <button type="button" class="disp-btn" id="loscam-Transfer"  onclick="setPalletDisp('loscam','Transfer')">Transfer</button>
+            </div>
+          </div>
+
+          <div class="pallet-divider"></div>
+
+          <div class="pallet-entry">
+            <div class="pallet-top">
+              <span class="pallet-badge pallet-plain">PLAIN</span>
+              <div class="pallet-counter">
+                <button type="button" class="pallet-btn" onclick="adjPallet('plain',-1)">−</button>
+                <span class="pallet-num" id="plain-count">0</span>
+                <button type="button" class="pallet-btn" onclick="adjPallet('plain',1)">+</button>
+              </div>
+            </div>
+            <div class="disp-row inactive" id="plain-disp-row">
+              <button type="button" class="disp-btn" id="plain-Exchanged" onclick="setPalletDisp('plain','Exchanged')">Exchanged</button>
+              <button type="button" class="disp-btn" id="plain-Transfer"  onclick="setPalletDisp('plain','Transfer')">Transfer</button>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
       <!-- Stock -->
       <section class="card">
-        <h2>Stock Delivered</h2>
+        <h2>Other Stock</h2>
         <div class="stock-grid">
-          <div class="field">
-            <label for="num-pallets">Pallets</label>
-            <input type="number" id="num-pallets" min="0" value="0" inputmode="numeric">
-          </div>
           <div class="field">
             <label for="num-cartons">Cartons</label>
             <input type="number" id="num-cartons" min="0" value="0" inputmode="numeric">

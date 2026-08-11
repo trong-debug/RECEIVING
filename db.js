@@ -11,9 +11,15 @@ db.exec(`
     address TEXT,
     arrived_at TEXT NOT NULL,
     submitted_at TEXT NOT NULL DEFAULT (datetime('now')),
-    num_pallets INTEGER,
-    num_cartons INTEGER,
-    num_satchels INTEGER,
+    num_pallets INTEGER DEFAULT 0,
+    num_cartons INTEGER DEFAULT 0,
+    num_satchels INTEGER DEFAULT 0,
+    chep_count INTEGER DEFAULT 0,
+    chep_disposition TEXT,
+    loscam_count INTEGER DEFAULT 0,
+    loscam_disposition TEXT,
+    plain_count INTEGER DEFAULT 0,
+    plain_disposition TEXT,
     condition TEXT NOT NULL DEFAULT 'Good',
     recipient_name TEXT,
     notes TEXT
@@ -30,6 +36,22 @@ db.exec(`
     address TEXT
   );
 `);
+
+// Migrate existing DB — add pallet columns if missing
+const existingCols = db.prepare('PRAGMA table_info(deliveries)').all().map(c => c.name);
+const migrations = [
+  ['chep_count',        'INTEGER DEFAULT 0'],
+  ['chep_disposition',  'TEXT'],
+  ['loscam_count',      'INTEGER DEFAULT 0'],
+  ['loscam_disposition','TEXT'],
+  ['plain_count',       'INTEGER DEFAULT 0'],
+  ['plain_disposition', 'TEXT'],
+];
+for (const [col, def] of migrations) {
+  if (!existingCols.includes(col)) {
+    db.exec(`ALTER TABLE deliveries ADD COLUMN ${col} ${def}`);
+  }
+}
 
 // Seed some default drivers and sites if empty
 const driverCount = db.prepare('SELECT COUNT(*) as n FROM drivers').get().n;
