@@ -1,15 +1,7 @@
-// ── Hold-to-repeat for +/- buttons ────────────────────────────────────────
+// ── Hold-to-repeat for temperature +/- buttons ────────────────────────────
 
 let holdTimer = null;
 let holdInterval = null;
-
-function startHold(type, delta, e) {
-  if (e && e.cancelable) e.preventDefault(); // prevent touch → mousedown double-fire
-  adjPallet(type, delta);
-  holdTimer = setTimeout(() => {
-    holdInterval = setInterval(() => adjPallet(type, delta), 80);
-  }, 450);
-}
 
 function stopHold() {
   clearTimeout(holdTimer);
@@ -18,33 +10,42 @@ function stopHold() {
   holdInterval = null;
 }
 
-// ── Pallet state ───────────────────────────────────────────────────────────
+// ── Drop off toggle state ─────────────────────────────────────────────────
 
-const palletCounts = { chep: 0, loscam: 0, plain: 0 };
-const palletDisp   = { chep: null, loscam: null, plain: null };
+const dropoffActive = { chep: false, loscam: false, plain: false, cartons: false };
+const palletDisp    = { chep: null, loscam: null, plain: null };
 
-function adjPallet(type, delta) {
-  palletCounts[type] = Math.max(0, palletCounts[type] + delta);
-  document.getElementById(type + '-count').textContent = palletCounts[type];
-  const row = document.getElementById(type + '-disp-row');
-  if (palletCounts[type] === 0) {
-    row.classList.add('inactive');
+function toggleDropoff(type) {
+  dropoffActive[type] = !dropoffActive[type];
+  const btn   = document.getElementById('dropoff-btn-' + type);
+  const panel = document.getElementById('dropoff-panel-' + type);
+  if (dropoffActive[type]) {
+    btn.classList.add('active');
+    panel.classList.remove('hidden');
+  } else {
+    btn.classList.remove('active');
+    panel.classList.add('hidden');
+    _resetDropoffPanel(type);
+  }
+}
+
+function _resetDropoffPanel(type) {
+  if (type === 'chep' || type === 'loscam' || type === 'plain') {
     palletDisp[type] = null;
-    row.querySelectorAll('.disp-btn').forEach(b => b.classList.remove('selected'));
+    document.getElementById(type + '-qty').value = '';
+    document.getElementById(type + '-disp-row').querySelectorAll('.disp-btn').forEach(b => b.classList.remove('selected'));
     if (type === 'chep') {
       document.getElementById('chep-docket-field').classList.add('hidden');
       document.getElementById('chep-docket').value = '';
     }
-  } else {
-    row.classList.remove('inactive');
+  } else if (type === 'cartons') {
+    document.getElementById('num-cartons').value = '';
   }
 }
 
 function setPalletDisp(type, disp) {
-  if (palletCounts[type] === 0) return;
   palletDisp[type] = disp;
-  const row = document.getElementById(type + '-disp-row');
-  row.querySelectorAll('.disp-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById(type + '-disp-row').querySelectorAll('.disp-btn').forEach(b => b.classList.remove('selected'));
   document.getElementById(type + '-' + disp).classList.add('selected');
   if (type === 'chep') {
     const docketField = document.getElementById('chep-docket-field');
@@ -77,7 +78,6 @@ async function refreshManageList() {
 
 async function deleteEntry(type, name) {
   await fetch('/api/' + type + '/' + encodeURIComponent(name), { method: 'DELETE' });
-  // Remove from the select dropdown too
   const sel = document.getElementById(selectIdMap[type]);
   const opt = [...sel.options].find(o => o.value === name);
   if (opt) sel.removeChild(opt);
@@ -165,25 +165,21 @@ async function loadDropdowns() {
   drivers.forEach(name => {
     if (name === 'Add New Driver...') return;
     const opt = document.createElement('option');
-    opt.value = name;
-    opt.textContent = name;
+    opt.value = name; opt.textContent = name;
     driverSel.appendChild(opt);
   });
   const addDriverOpt = document.createElement('option');
-  addDriverOpt.value = '__new__';
-  addDriverOpt.textContent = '+ Add new driver…';
+  addDriverOpt.value = '__new__'; addDriverOpt.textContent = '+ Add new driver…';
   driverSel.appendChild(addDriverOpt);
 
   const siteSel = document.getElementById('site-select');
   sites.forEach(({ name }) => {
     const opt = document.createElement('option');
-    opt.value = name;
-    opt.textContent = name;
+    opt.value = name; opt.textContent = name;
     siteSel.appendChild(opt);
   });
   const addSiteOpt = document.createElement('option');
-  addSiteOpt.value = '__new__';
-  addSiteOpt.textContent = '+ Add new site…';
+  addSiteOpt.value = '__new__'; addSiteOpt.textContent = '+ Add new site…';
   siteSel.appendChild(addSiteOpt);
 
   const clientSel = document.getElementById('client-select');
@@ -193,8 +189,7 @@ async function loadDropdowns() {
     clientSel.appendChild(opt);
   });
   const addClientOpt = document.createElement('option');
-  addClientOpt.value = '__new__';
-  addClientOpt.textContent = '+ Add new client…';
+  addClientOpt.value = '__new__'; addClientOpt.textContent = '+ Add new client…';
   clientSel.appendChild(addClientOpt);
 
   const transportSel = document.getElementById('transport-select');
@@ -204,8 +199,7 @@ async function loadDropdowns() {
     transportSel.appendChild(opt);
   });
   const addTransportOpt = document.createElement('option');
-  addTransportOpt.value = '__new__';
-  addTransportOpt.textContent = '+ Add new carrier…';
+  addTransportOpt.value = '__new__'; addTransportOpt.textContent = '+ Add new carrier…';
   transportSel.appendChild(addTransportOpt);
 
   const recipientSel = document.getElementById('recipient-select');
@@ -215,11 +209,9 @@ async function loadDropdowns() {
     recipientSel.appendChild(opt);
   });
   const addRecipientOpt = document.createElement('option');
-  addRecipientOpt.value = '__new__';
-  addRecipientOpt.textContent = '+ Add new recipient…';
+  addRecipientOpt.value = '__new__'; addRecipientOpt.textContent = '+ Add new recipient…';
   recipientSel.appendChild(addRecipientOpt);
 
-  // Pre-fill address when site selected
   const siteMap = {};
   sites.forEach(s => { if (s.address) siteMap[s.name] = s.address; });
   siteSel.addEventListener('change', () => {
@@ -266,17 +258,21 @@ document.getElementById('delivery-form').addEventListener('submit', async e => {
 
   const arrived_at = document.getElementById('arrived-at').value;
 
-  // Validation
   if (!driver_name) { showError('Please select or enter your name.'); return; }
   if (!site_name)   { showError('Please select or enter a site name.'); return; }
   if (!arrived_at)  { showError('Please enter the arrival time.'); return; }
   if (!selectedDirection) { showError('Please select Inbound or Outbound.'); return; }
 
   for (const type of ['chep', 'loscam', 'plain']) {
-    if (palletCounts[type] > 0 && !palletDisp[type]) {
-      showError(`Please select Exchanged or Transfer for ${type.toUpperCase()} pallets.`);
-      return;
+    if (dropoffActive[type]) {
+      const qty = parseInt(document.getElementById(type + '-qty').value) || 0;
+      if (qty <= 0) { showError(`Please enter a quantity for ${type.toUpperCase()}.`); return; }
+      if (!palletDisp[type]) { showError(`Please select Exchanged, Transfer or Drop off for ${type.toUpperCase()}.`); return; }
     }
+  }
+  if (dropoffActive.cartons) {
+    const qty = parseInt(document.getElementById('num-cartons').value) || 0;
+    if (qty <= 0) { showError('Please enter a carton quantity.'); return; }
   }
 
   const payload = {
@@ -284,14 +280,14 @@ document.getElementById('delivery-form').addEventListener('submit', async e => {
     site_name,
     address: document.getElementById('address').value.trim() || null,
     arrived_at,
-    chep_count:        palletCounts.chep,
-    chep_disposition:  palletDisp.chep,
-    loscam_count:      palletCounts.loscam,
-    loscam_disposition:palletDisp.loscam,
-    plain_count:       palletCounts.plain,
-    plain_disposition: palletDisp.plain,
-    num_cartons:  parseInt(document.getElementById('num-cartons').value)  || 0,
-    num_satchels: parseInt(document.getElementById('num-satchels').value) || 0,
+    chep_count:         dropoffActive.chep    ? Math.max(0, parseInt(document.getElementById('chep-qty').value)    || 0) : 0,
+    chep_disposition:   dropoffActive.chep    ? palletDisp.chep   : null,
+    loscam_count:       dropoffActive.loscam  ? Math.max(0, parseInt(document.getElementById('loscam-qty').value)  || 0) : 0,
+    loscam_disposition: dropoffActive.loscam  ? palletDisp.loscam : null,
+    plain_count:        dropoffActive.plain   ? Math.max(0, parseInt(document.getElementById('plain-qty').value)   || 0) : 0,
+    plain_disposition:  dropoffActive.plain   ? palletDisp.plain  : null,
+    num_cartons:        dropoffActive.cartons ? Math.max(0, parseInt(document.getElementById('num-cartons').value) || 0) : 0,
+    num_satchels: 0,
     client_name: (() => { const s = document.getElementById('client-select').value; return s === '__new__' ? document.getElementById('new-client').value.trim() || null : s || null; })(),
     direction: selectedDirection,
     dispatch_time: document.getElementById('dispatch-time').value || null,
@@ -321,13 +317,12 @@ document.getElementById('delivery-form').addEventListener('submit', async e => {
     if (!res.ok) throw new Error(data.error || 'Server error');
 
     const palletParts = [];
-    if (palletCounts.chep   > 0) palletParts.push(`${palletCounts.chep} CHEP (${palletDisp.chep})`);
-    if (palletCounts.loscam > 0) palletParts.push(`${palletCounts.loscam} LOSCAM (${palletDisp.loscam})`);
-    if (palletCounts.plain  > 0) palletParts.push(`${palletCounts.plain} Plain (${palletDisp.plain})`);
+    if (payload.chep_count   > 0) palletParts.push(`${payload.chep_count} CHEP (${palletDisp.chep})`);
+    if (payload.loscam_count > 0) palletParts.push(`${payload.loscam_count} LOSCAM (${palletDisp.loscam})`);
+    if (payload.plain_count  > 0) palletParts.push(`${payload.plain_count} Plain (${palletDisp.plain})`);
     const stockParts = [];
-    if (palletParts.length)      stockParts.push(palletParts.join(', '));
-    if (payload.num_cartons)     stockParts.push(`${payload.num_cartons} carton${payload.num_cartons !== 1 ? 's' : ''}`);
-    if (payload.num_satchels)    stockParts.push(`${payload.num_satchels} satchel${payload.num_satchels !== 1 ? 's' : ''}`);
+    if (palletParts.length)       stockParts.push(palletParts.join(', '));
+    if (payload.num_cartons)      stockParts.push(`${payload.num_cartons} carton${payload.num_cartons !== 1 ? 's' : ''}`);
 
     document.getElementById('success-msg').textContent =
       `${driver_name} → ${site_name} at ${formatDatetime(arrived_at)}` +
@@ -371,16 +366,21 @@ function resetForm() {
   document.getElementById('dispatch-time').value = '';
   hide(document.getElementById('new-transport-field'));
   hide(document.getElementById('new-recipient-field'));
+
+  for (const type of ['chep', 'loscam', 'plain', 'cartons']) {
+    dropoffActive[type] = false;
+    document.getElementById('dropoff-btn-' + type).classList.remove('active');
+    document.getElementById('dropoff-panel-' + type).classList.add('hidden');
+  }
   for (const type of ['chep', 'loscam', 'plain']) {
-    palletCounts[type] = 0;
-    palletDisp[type]   = null;
-    document.getElementById(type + '-count').textContent = '0';
-    const row = document.getElementById(type + '-disp-row');
-    row.classList.add('inactive');
-    row.querySelectorAll('.disp-btn').forEach(b => b.classList.remove('selected'));
+    palletDisp[type] = null;
+    document.getElementById(type + '-qty').value = '';
+    document.getElementById(type + '-disp-row').querySelectorAll('.disp-btn').forEach(b => b.classList.remove('selected'));
   }
   document.getElementById('chep-docket-field').classList.add('hidden');
   document.getElementById('chep-docket').value = '';
+  document.getElementById('num-cartons').value = '';
+
   selectedTemp = null;
   tempValue = 0;
   document.querySelectorAll('#temp-btn-row .disp-btn').forEach(b => b.classList.remove('selected'));

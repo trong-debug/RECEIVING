@@ -224,6 +224,46 @@ textarea { resize: vertical; }
   pointer-events: none;
 }
 
+/* ── Drop off section ─────────────────────────────────────── */
+.dropoff-btn-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+.dropoff-btn {
+  padding: 18px 8px;
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+  color: var(--text-muted);
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: .07em;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all .15s;
+  text-align: center;
+}
+.dropoff-btn:hover { border-color: var(--brand); color: var(--brand); background: var(--brand-light); }
+.dropoff-btn.active.dropoff-chep    { background: #0052A5; border-color: #0052A5; color: #fff; }
+.dropoff-btn.active.dropoff-loscam  { background: #c9a200; border-color: #c9a200; color: #fff; }
+.dropoff-btn.active.dropoff-plain   { background: #6b7280; border-color: #6b7280; color: #fff; }
+.dropoff-btn.active.dropoff-cartons { background: var(--brand); border-color: var(--brand); color: #fff; }
+
+.dropoff-panel {
+  border-left: 3px solid var(--border);
+  padding: 14px 0 2px 16px;
+  margin: 10px 0 6px;
+}
+#dropoff-panel-chep    { border-left-color: #0052A5; }
+#dropoff-panel-loscam  { border-left-color: #c9a200; }
+#dropoff-panel-plain   { border-left-color: #6b7280; }
+#dropoff-panel-cartons { border-left-color: var(--brand); }
+.dropoff-panel .field:last-child { margin-bottom: 0; }
+
+.dropoff-divider { height: 1px; background: var(--border); margin: 20px 0 16px; }
+
 /* ── Admin pallet chips ───────────────────────────────────── */
 .pallet-chip {
   display: inline-block;

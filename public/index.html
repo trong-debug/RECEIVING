@@ -120,83 +120,75 @@
         </div>
       </section>
 
-      <!-- Pallets -->
+      <!-- Drop off -->
       <section class="card">
-        <h2>Pallets</h2>
-        <div class="pallet-type-list">
+        <h2>Drop off</h2>
 
-          <div class="pallet-entry">
-            <div class="pallet-top">
-              <span class="pallet-badge pallet-chep">CHEP</span>
-              <div class="pallet-counter">
-                <button type="button" class="pallet-btn" onmousedown="startHold('chep',-1,event)" ontouchstart="startHold('chep',-1,event)" onmouseup="stopHold()" onmouseleave="stopHold()" ontouchend="stopHold()">−</button>
-                <span class="pallet-num" id="chep-count">0</span>
-                <button type="button" class="pallet-btn" onmousedown="startHold('chep',1,event)" ontouchstart="startHold('chep',1,event)" onmouseup="stopHold()" onmouseleave="stopHold()" ontouchend="stopHold()">+</button>
-              </div>
-            </div>
-            <div class="disp-row inactive" id="chep-disp-row">
+        <div class="dropoff-btn-row">
+          <button type="button" class="dropoff-btn dropoff-chep"    id="dropoff-btn-chep"    onclick="toggleDropoff('chep')">CHEPS</button>
+          <button type="button" class="dropoff-btn dropoff-loscam"  id="dropoff-btn-loscam"  onclick="toggleDropoff('loscam')">LOSCAM</button>
+          <button type="button" class="dropoff-btn dropoff-plain"   id="dropoff-btn-plain"   onclick="toggleDropoff('plain')">PLAIN</button>
+          <button type="button" class="dropoff-btn dropoff-cartons" id="dropoff-btn-cartons" onclick="toggleDropoff('cartons')">CARTONS</button>
+        </div>
+
+        <div class="dropoff-panel hidden" id="dropoff-panel-chep">
+          <div class="field">
+            <label for="chep-qty">CHEPS Quantity</label>
+            <input type="number" id="chep-qty" min="0" inputmode="numeric" placeholder="0">
+          </div>
+          <div class="field">
+            <label>Disposition</label>
+            <div class="disp-row" id="chep-disp-row">
               <button type="button" class="disp-btn" id="chep-Exchanged" onclick="setPalletDisp('chep','Exchanged')">Exchanged</button>
               <button type="button" class="disp-btn" id="chep-Transfer"  onclick="setPalletDisp('chep','Transfer')">Transfer</button>
               <button type="button" class="disp-btn" id="chep-Drop off"  onclick="setPalletDisp('chep','Drop off')">Drop off</button>
             </div>
-            <div class="field hidden" id="chep-docket-field">
-              <label for="chep-docket">CHEP Docket Number(s)</label>
-              <input type="text" id="chep-docket" placeholder="Enter docket number(s)">
-            </div>
           </div>
+          <div class="field hidden" id="chep-docket-field">
+            <label for="chep-docket">CHEP Docket Number(s)</label>
+            <input type="text" id="chep-docket" placeholder="Enter docket number(s)">
+          </div>
+        </div>
 
-          <div class="pallet-divider"></div>
-
-          <div class="pallet-entry">
-            <div class="pallet-top">
-              <span class="pallet-badge pallet-loscam">LOSCAM</span>
-              <div class="pallet-counter">
-                <button type="button" class="pallet-btn" onmousedown="startHold('loscam',-1,event)" ontouchstart="startHold('loscam',-1,event)" onmouseup="stopHold()" onmouseleave="stopHold()" ontouchend="stopHold()">−</button>
-                <span class="pallet-num" id="loscam-count">0</span>
-                <button type="button" class="pallet-btn" onmousedown="startHold('loscam',1,event)" ontouchstart="startHold('loscam',1,event)" onmouseup="stopHold()" onmouseleave="stopHold()" ontouchend="stopHold()">+</button>
-              </div>
-            </div>
-            <div class="disp-row inactive" id="loscam-disp-row">
+        <div class="dropoff-panel hidden" id="dropoff-panel-loscam">
+          <div class="field">
+            <label for="loscam-qty">LOSCAM Quantity</label>
+            <input type="number" id="loscam-qty" min="0" inputmode="numeric" placeholder="0">
+          </div>
+          <div class="field">
+            <label>Disposition</label>
+            <div class="disp-row" id="loscam-disp-row">
               <button type="button" class="disp-btn" id="loscam-Exchanged" onclick="setPalletDisp('loscam','Exchanged')">Exchanged</button>
               <button type="button" class="disp-btn" id="loscam-Transfer"  onclick="setPalletDisp('loscam','Transfer')">Transfer</button>
               <button type="button" class="disp-btn" id="loscam-Drop off"  onclick="setPalletDisp('loscam','Drop off')">Drop off</button>
             </div>
           </div>
+        </div>
 
-          <div class="pallet-divider"></div>
-
-          <div class="pallet-entry">
-            <div class="pallet-top">
-              <span class="pallet-badge pallet-plain">PLAIN</span>
-              <div class="pallet-counter">
-                <button type="button" class="pallet-btn" onmousedown="startHold('plain',-1,event)" ontouchstart="startHold('plain',-1,event)" onmouseup="stopHold()" onmouseleave="stopHold()" ontouchend="stopHold()">−</button>
-                <span class="pallet-num" id="plain-count">0</span>
-                <button type="button" class="pallet-btn" onmousedown="startHold('plain',1,event)" ontouchstart="startHold('plain',1,event)" onmouseup="stopHold()" onmouseleave="stopHold()" ontouchend="stopHold()">+</button>
-              </div>
-            </div>
-            <div class="disp-row inactive" id="plain-disp-row">
+        <div class="dropoff-panel hidden" id="dropoff-panel-plain">
+          <div class="field">
+            <label for="plain-qty">PLAIN Quantity</label>
+            <input type="number" id="plain-qty" min="0" inputmode="numeric" placeholder="0">
+          </div>
+          <div class="field">
+            <label>Disposition</label>
+            <div class="disp-row" id="plain-disp-row">
               <button type="button" class="disp-btn" id="plain-Exchanged" onclick="setPalletDisp('plain','Exchanged')">Exchanged</button>
               <button type="button" class="disp-btn" id="plain-Transfer"  onclick="setPalletDisp('plain','Transfer')">Transfer</button>
               <button type="button" class="disp-btn" id="plain-Drop off"  onclick="setPalletDisp('plain','Drop off')">Drop off</button>
             </div>
           </div>
-
         </div>
-      </section>
 
-      <!-- Stock -->
-      <section class="card">
-        <h2>Other Stock</h2>
-        <div class="stock-grid">
+        <div class="dropoff-panel hidden" id="dropoff-panel-cartons">
           <div class="field">
-            <label for="num-cartons">Cartons</label>
-            <input type="number" id="num-cartons" min="0" value="0" inputmode="numeric">
-          </div>
-          <div class="field">
-            <label for="num-satchels">Satchels</label>
-            <input type="number" id="num-satchels" min="0" value="0" inputmode="numeric">
+            <label for="num-cartons">Cartons Quantity</label>
+            <input type="number" id="num-cartons" min="0" inputmode="numeric" placeholder="0">
           </div>
         </div>
+
+        <div class="dropoff-divider"></div>
+
         <div class="field">
           <label for="transport-select">Transport Name</label>
           <div class="select-with-manage">
