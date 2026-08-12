@@ -183,40 +183,44 @@ app.delete('/api/deliveries', (_req, res) => {
 });
 
 app.post('/api/sync-to-sheets', async (_req, res) => {
-  const url = process.env.GOOGLE_SHEET_WEBHOOK;
-  if (!url) return res.status(400).json({ error: 'No Google Sheet webhook URL configured' });
+  try {
+    const url = process.env.GOOGLE_SHEET_WEBHOOK;
+    if (!url) return res.status(400).json({ error: 'No Google Sheet webhook URL configured' });
 
-  const rows = db.prepare('SELECT * FROM deliveries ORDER BY id ASC').all();
-  let synced = 0, errors = 0;
-  const failed = [];
+    const rows = db.prepare('SELECT * FROM deliveries ORDER BY id ASC').all();
+    let synced = 0, errors = 0;
+    const failed = [];
 
-  for (const row of rows) {
-    try {
-      const r = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(row),
-        signal: AbortSignal.timeout(15000)
-      });
-      if (r.ok) {
-        synced++;
-      } else {
-        const text = await r.text().catch(() => '');
-        console.error(`Manual sync: record #${row.id} failed status=${r.status} body=${text.slice(0, 200)}`);
+    for (const row of rows) {
+      try {
+        const r = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(row),
+          signal: AbortSignal.timeout(15000)
+        });
+        if (r.ok) {
+          synced++;
+        } else {
+          const text = await r.text().catch(() => '');
+          console.error(`Manual sync: record #${row.id} failed status=${r.status} body=${text.slice(0, 200)}`);
+          failed.push(row.id);
+          errors++;
+        }
+      } catch (err) {
+        console.error(`Manual sync: record #${row.id} error — ${err.message}`);
         failed.push(row.id);
         errors++;
       }
-    } catch (err) {
-      console.error(`Manual sync: record #${row.id} error — ${err.message}`);
-      failed.push(row.id);
-      errors++;
+      await new Promise(resolve => setTimeout(resolve, 300));
     }
-    // Small delay to avoid Apps Script rate limiting
-    await new Promise(resolve => setTimeout(resolve, 300));
-  }
 
-  console.log(`Manual sync: ${synced} synced, ${errors} errors out of ${rows.length}${failed.length ? ' — failed IDs: ' + failed.join(',') : ''}`);
-  res.json({ synced, errors, total: rows.length, failed });
+    console.log(`Manual sync: ${synced} synced, ${errors} errors out of ${rows.length}${failed.length ? ' — failed IDs: ' + failed.join(',') : ''}`);
+    res.json({ synced, errors, total: rows.length, failed });
+  } catch (err) {
+    console.error('Manual sync fatal error:', err);
+    res.status(500).json({ error: err.message || 'Internal server error' });
+  }
 });
 
 // ── Drivers & Sites (for dropdowns) ─────────────────────────────────────────
