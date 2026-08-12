@@ -81,6 +81,7 @@ function renderTable(rows) {
       <td>${r.id}</td>
       <td><strong>${esc(r.driver_name)}</strong></td>
       <td>${esc(r.site_name)}${r.address ? `<br><small style="color:#888">${esc(r.address)}</small>` : ''}</td>
+      <td>${esc(r.location) || ''}</td>
       <td style="white-space:nowrap">${formatDatetime(r.arrived_at)}</td>
       <td style="white-space:nowrap">${r.dispatch_time ? formatDatetime(r.dispatch_time) : ''}</td>
       <td>${esc(r.client_name) || ''}</td>

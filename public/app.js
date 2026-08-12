@@ -10,6 +10,29 @@ function stopHold() {
   holdInterval = null;
 }
 
+// ── Location selection ────────────────────────────────────────────────────
+
+const LOCATION_IDS = {
+  'Dock 8':       'loc-btn-dock8',
+  'Dock 9':       'loc-btn-dock9',
+  'Dock 10':      'loc-btn-dock10',
+  'Dock 11':      'loc-btn-dock11',
+  'BC Hardstand': 'loc-btn-hardstand'
+};
+let selectedLocation = null;
+
+function setLocation(loc) {
+  if (selectedLocation === loc) {
+    selectedLocation = null;
+    document.getElementById(LOCATION_IDS[loc]).classList.remove('active');
+    return;
+  }
+  for (const [l, id] of Object.entries(LOCATION_IDS)) {
+    document.getElementById(id).classList.toggle('active', l === loc);
+  }
+  selectedLocation = loc;
+}
+
 // ── Drop off toggle state ─────────────────────────────────────────────────
 
 const dropoffActive = { chep: false, loscam: false, plain: false, cartons: false };
@@ -304,7 +327,8 @@ document.getElementById('delivery-form').addEventListener('submit', async e => {
     chep_docket: document.getElementById('chep-docket').value.trim() || null,
     condition: document.querySelector('input[name="condition"]:checked').value,
     recipient_name: (() => { const s = document.getElementById('recipient-select').value; return s === '__new__' ? document.getElementById('new-recipient').value.trim() || null : s || null; })(),
-    notes: document.getElementById('notes').value.trim() || null
+    notes: document.getElementById('notes').value.trim() || null,
+    location: selectedLocation || null
   };
 
   const btn = document.getElementById('submit-btn');
@@ -387,6 +411,9 @@ function resetForm() {
   document.getElementById('chep-docket-field').classList.add('hidden');
   document.getElementById('chep-docket').value = '';
   document.getElementById('num-cartons').value = '';
+
+  selectedLocation = null;
+  for (const id of Object.values(LOCATION_IDS)) document.getElementById(id).classList.remove('active');
 
   selectedTemp = null;
   tempValue = 0;

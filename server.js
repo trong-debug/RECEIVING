@@ -37,7 +37,7 @@ app.post('/api/deliveries', (req, res) => {
     plain_count, plain_disposition,
     client_name, direction, dispatch_time,
     transport_name, temperature, temperature_value,
-    chep_docket,
+    chep_docket, location,
     condition, recipient_name, notes
   } = req.body;
 
@@ -58,7 +58,7 @@ app.post('/api/deliveries', (req, res) => {
        plain_count, plain_disposition,
        client_name, direction, dispatch_time,
        transport_name, temperature, temperature_value,
-       chep_docket,
+       chep_docket, location,
        condition, recipient_name, notes)
     VALUES
       (@driver_name, @site_name, @address, @arrived_at,
@@ -68,7 +68,7 @@ app.post('/api/deliveries', (req, res) => {
        @plain_count, @plain_disposition,
        @client_name, @direction, @dispatch_time,
        @transport_name, @temperature, @temperature_value,
-       @chep_docket,
+       @chep_docket, @location,
        @condition, @recipient_name, @notes)
   `);
 
@@ -92,6 +92,7 @@ app.post('/api/deliveries', (req, res) => {
     temperature: temperature || null,
     temperature_value: temperature_value || null,
     chep_docket: chep_docket || null,
+    location: location || null,
     condition: condition || 'Good',
     recipient_name: recipient_name || null,
     notes: notes || null

@@ -224,6 +224,29 @@ textarea { resize: vertical; }
   pointer-events: none;
 }
 
+/* ── Location buttons ─────────────────────────────────────── */
+.location-btn-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.location-btn {
+  padding: 10px 16px;
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text-muted);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .15s;
+}
+.location-btn.active {
+  background: #0e3a6e;
+  border-color: #0e3a6e;
+  color: #fff;
+}
+
 /* ── Drop off section ─────────────────────────────────────── */
 .dropoff-btn-row {
   display: grid;

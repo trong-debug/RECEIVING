@@ -69,6 +69,7 @@ const migrations = [
   ['temperature',       'TEXT'],
   ['temperature_value', 'TEXT'],
   ['chep_docket',       'TEXT'],
+  ['location',          'TEXT'],
 ];
 for (const [col, def] of migrations) {
   if (!existingCols.includes(col)) {
