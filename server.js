@@ -216,6 +216,20 @@ app.get('/health', (_req, res) => res.json({ status: 'ok' }));
 
 // ── Serve SPA pages ──────────────────────────────────────────────────────────
 
-app.get('/admin', (_req, res) => res.sendFile(path.join(__dirname, 'public', 'admin.html')));
+function requireAuth(req, res, next) {
+  const user = process.env.ADMIN_USER;
+  const pass = process.env.ADMIN_PASS;
+  if (!user || !pass) return next(); // if env vars not set, allow through (dev mode)
+
+  const auth = req.headers.authorization;
+  if (auth && auth.startsWith('Basic ')) {
+    const [u, p] = Buffer.from(auth.slice(6), 'base64').toString().split(':');
+    if (u === user && p === pass) return next();
+  }
+  res.set('WWW-Authenticate', 'Basic realm="Be Cool Admin"');
+  res.status(401).send('Unauthorised');
+}
+
+app.get('/admin', requireAuth, (_req, res) => res.sendFile(path.join(__dirname, 'public', 'admin.html')));
 
 app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
