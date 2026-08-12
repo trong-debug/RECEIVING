@@ -232,4 +232,33 @@ function requireAuth(req, res, next) {
 
 app.get('/admin', requireAuth, (_req, res) => res.sendFile(path.join(__dirname, 'public', 'admin.html')));
 
-app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
+async function syncSequenceWithSheets() {
+  const url = process.env.GOOGLE_SHEET_WEBHOOK;
+  if (!url) { console.log('Sequence sync: no webhook URL set, skipping'); return; }
+  try {
+    const res = await fetch(url + '?action=maxId', { signal: AbortSignal.timeout(8000) });
+    const { maxId } = await res.json();
+    if (maxId > 0) {
+      const row = db.prepare("SELECT seq FROM sqlite_sequence WHERE name = 'deliveries'").get();
+      const currentSeq = row ? row.seq : 0;
+      if (maxId > currentSeq) {
+        if (row) {
+          db.prepare("UPDATE sqlite_sequence SET seq = ? WHERE name = 'deliveries'").run(maxId);
+        } else {
+          db.prepare("INSERT INTO sqlite_sequence (name, seq) VALUES ('deliveries', ?)").run(maxId);
+        }
+        console.log(`Sequence sync: bumped SQLite seq from ${currentSeq} to ${maxId}`);
+      } else {
+        console.log(`Sequence sync: SQLite seq (${currentSeq}) already ahead of Sheets max (${maxId}), no change`);
+      }
+    } else {
+      console.log('Sequence sync: Sheets has no records, keeping SQLite seq as-is');
+    }
+  } catch (err) {
+    console.log('Sequence sync: skipped —', err.message);
+  }
+}
+
+syncSequenceWithSheets().then(() => {
+  app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
+});
