@@ -188,6 +188,7 @@ app.post('/api/sync-to-sheets', async (_req, res) => {
 
   const rows = db.prepare('SELECT * FROM deliveries ORDER BY id ASC').all();
   let synced = 0, errors = 0;
+  const failed = [];
 
   for (const row of rows) {
     try {
@@ -195,17 +196,27 @@ app.post('/api/sync-to-sheets', async (_req, res) => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(row),
-        signal: AbortSignal.timeout(12000)
+        signal: AbortSignal.timeout(15000)
       });
-      if (r.ok) synced++;
-      else errors++;
-    } catch {
+      if (r.ok) {
+        synced++;
+      } else {
+        const text = await r.text().catch(() => '');
+        console.error(`Manual sync: record #${row.id} failed status=${r.status} body=${text.slice(0, 200)}`);
+        failed.push(row.id);
+        errors++;
+      }
+    } catch (err) {
+      console.error(`Manual sync: record #${row.id} error — ${err.message}`);
+      failed.push(row.id);
       errors++;
     }
+    // Small delay to avoid Apps Script rate limiting
+    await new Promise(resolve => setTimeout(resolve, 300));
   }
 
-  console.log(`Manual sync: ${synced} synced, ${errors} errors out of ${rows.length}`);
-  res.json({ synced, errors, total: rows.length });
+  console.log(`Manual sync: ${synced} synced, ${errors} errors out of ${rows.length}${failed.length ? ' — failed IDs: ' + failed.join(',') : ''}`);
+  res.json({ synced, errors, total: rows.length, failed });
 });
 
 // ── Drivers & Sites (for dropdowns) ─────────────────────────────────────────

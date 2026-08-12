@@ -156,9 +156,12 @@ async function manualSyncSheets() {
     const res = await fetch('/api/sync-to-sheets', { method: 'POST' });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Server error');
-    btn.textContent = data.errors > 0
-      ? `✓ ${data.synced} synced, ${data.errors} failed`
-      : `✓ ${data.synced} records synced`;
+    if (data.errors > 0) {
+      const failMsg = data.failed && data.failed.length ? ` (IDs: ${data.failed.join(', ')})` : '';
+      btn.textContent = `✓ ${data.synced} synced, ${data.errors} failed${failMsg}`;
+    } else {
+      btn.textContent = `✓ ${data.synced} records synced`;
+    }
   } catch (err) {
     btn.textContent = 'Error — ' + err.message;
   }
