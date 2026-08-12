@@ -16,16 +16,23 @@ const dropoffActive = { chep: false, loscam: false, plain: false, cartons: false
 const palletDisp    = { chep: null, loscam: null, plain: null };
 
 function toggleDropoff(type) {
-  dropoffActive[type] = !dropoffActive[type];
-  const btn   = document.getElementById('dropoff-btn-' + type);
-  const panel = document.getElementById('dropoff-panel-' + type);
-  if (dropoffActive[type]) {
-    btn.classList.add('active');
-    panel.classList.remove('hidden');
-  } else {
-    btn.classList.remove('active');
-    panel.classList.add('hidden');
-    _resetDropoffPanel(type);
+  const wasActive = dropoffActive[type];
+
+  // Deactivate all first
+  for (const t of ['chep', 'loscam', 'plain', 'cartons']) {
+    if (dropoffActive[t]) {
+      dropoffActive[t] = false;
+      document.getElementById('dropoff-btn-' + t).classList.remove('active');
+      document.getElementById('dropoff-panel-' + t).classList.add('hidden');
+      _resetDropoffPanel(t);
+    }
+  }
+
+  // Activate clicked one only if it wasn't already active
+  if (!wasActive) {
+    dropoffActive[type] = true;
+    document.getElementById('dropoff-btn-' + type).classList.add('active');
+    document.getElementById('dropoff-panel-' + type).classList.remove('hidden');
   }
 }
 
