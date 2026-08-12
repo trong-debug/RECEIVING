@@ -147,6 +147,24 @@ async function deleteRecord(id) {
   loadRecords();
 }
 
+async function manualSyncSheets() {
+  const btn = document.getElementById('btn-sync');
+  const original = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = 'Syncing…';
+  try {
+    const res = await fetch('/api/sync-to-sheets', { method: 'POST' });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Server error');
+    btn.textContent = data.errors > 0
+      ? `✓ ${data.synced} synced, ${data.errors} failed`
+      : `✓ ${data.synced} records synced`;
+  } catch (err) {
+    btn.textContent = 'Error — ' + err.message;
+  }
+  setTimeout(() => { btn.textContent = original; btn.disabled = false; }, 4000);
+}
+
 async function clearAllRecords() {
   if (!confirm('Delete ALL records? This cannot be undone.')) return;
   if (!confirm('Are you sure? All delivery records will be permanently deleted.')) return;

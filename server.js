@@ -182,6 +182,32 @@ app.delete('/api/deliveries', (_req, res) => {
   res.json({ ok: true });
 });
 
+app.post('/api/sync-to-sheets', async (_req, res) => {
+  const url = process.env.GOOGLE_SHEET_WEBHOOK;
+  if (!url) return res.status(400).json({ error: 'No Google Sheet webhook URL configured' });
+
+  const rows = db.prepare('SELECT * FROM deliveries ORDER BY id ASC').all();
+  let synced = 0, errors = 0;
+
+  for (const row of rows) {
+    try {
+      const r = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(row),
+        signal: AbortSignal.timeout(12000)
+      });
+      if (r.ok) synced++;
+      else errors++;
+    } catch {
+      errors++;
+    }
+  }
+
+  console.log(`Manual sync: ${synced} synced, ${errors} errors out of ${rows.length}`);
+  res.json({ synced, errors, total: rows.length });
+});
+
 // ── Drivers & Sites (for dropdowns) ─────────────────────────────────────────
 
 app.get('/api/drivers', (_req, res) => {
