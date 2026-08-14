@@ -137,14 +137,15 @@ function closeManage(e) {
 // ── Dispatch time offset input ─────────────────────────────────────────────
 
 function updateDispatchFromOffset() {
-  const arrivedVal = document.getElementById('arrived-at').value;
-  const mins = parseInt(document.getElementById('dispatch-offset').value);
-  if (!arrivedVal || isNaN(mins) || mins < 0) return;
-  const base = new Date(arrivedVal);
+  const dateVal = document.getElementById('arrival-date').value;
+  const timeVal = document.getElementById('arrived-at').value;
+  const mins    = parseInt(document.getElementById('dispatch-offset').value);
+  if (!dateVal || !timeVal || isNaN(mins) || mins < 0) return;
+  const base = new Date(`${dateVal}T${timeVal}`);
   base.setMinutes(base.getMinutes() + mins);
   const pad = n => String(n).padStart(2, '0');
   document.getElementById('dispatch-time').value =
-    `${base.getFullYear()}-${pad(base.getMonth()+1)}-${pad(base.getDate())}T${pad(base.getHours())}:${pad(base.getMinutes())}`;
+    `${pad(base.getHours())}:${pad(base.getMinutes())}`;
 }
 
 // ── Direction selection ────────────────────────────────────────────────────
@@ -184,10 +185,16 @@ function startTempHold(delta, e) {
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
-function localDatetimeValue() {
+function localDateValue() {
   const now = new Date();
   const pad = n => String(n).padStart(2, '0');
-  return `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
+  return `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
+}
+
+function localTimeValue() {
+  const now = new Date();
+  const pad = n => String(n).padStart(2, '0');
+  return `${pad(now.getHours())}:${pad(now.getMinutes())}`;
 }
 
 function show(el) { el.classList.remove('hidden'); }
@@ -195,7 +202,8 @@ function hide(el) { el.classList.add('hidden'); }
 
 // ── Bootstrap ─────────────────────────────────────────────────────────────
 
-document.getElementById('arrived-at').value = localDatetimeValue();
+document.getElementById('arrival-date').value = localDateValue();
+document.getElementById('arrived-at').value    = localTimeValue();
 
 async function loadDropdowns() {
   const [drivers, sites, clients, transports, recipients] = await Promise.all([
@@ -301,11 +309,14 @@ document.getElementById('delivery-form').addEventListener('submit', async e => {
     ? document.getElementById('new-site').value.trim()
     : siteSel;
 
-  const arrived_at = document.getElementById('arrived-at').value;
+  const arrival_date = document.getElementById('arrival-date').value;
+  const arrival_time = document.getElementById('arrived-at').value;
+  const arrived_at   = arrival_date && arrival_time ? `${arrival_date}T${arrival_time}` : '';
 
-  if (!driver_name) { showError('Please select or enter your name.'); return; }
-  if (!site_name)   { showError('Please select or enter a site name.'); return; }
-  if (!arrived_at)  { showError('Please enter the arrival time.'); return; }
+  if (!driver_name)  { showError('Please select or enter your name.'); return; }
+  if (!site_name)    { showError('Please select or enter a site name.'); return; }
+  if (!arrival_date) { showError('Please enter the arrival date.'); return; }
+  if (!arrival_time) { showError('Please enter the arrival time.'); return; }
   if (!selectedDirection) { showError('Please select Inbound or Outbound.'); return; }
 
   const anyDropoff = Object.values(dropoffActive).some(Boolean);
@@ -337,7 +348,7 @@ document.getElementById('delivery-form').addEventListener('submit', async e => {
     num_satchels: 0,
     client_name: (() => { const s = document.getElementById('client-select').value; return s === '__new__' ? document.getElementById('new-client').value.trim() || null : s || null; })(),
     direction: selectedDirection,
-    dispatch_time: document.getElementById('dispatch-time').value || null,
+    dispatch_time: (() => { const t = document.getElementById('dispatch-time').value; return t ? `${arrival_date}T${t}` : null; })(),
     transport_name: (() => { const s = document.getElementById('transport-select').value; return s === '__new__' ? document.getElementById('new-transport').value.trim() || null : s || null; })(),
     temperature: selectedTemp || null,
     temperature_value: selectedTemp ? String(tempValue) : null,
@@ -404,7 +415,8 @@ function resetForm() {
   hide(document.getElementById('success-banner'));
   show(document.getElementById('delivery-form'));
   document.getElementById('delivery-form').reset();
-  document.getElementById('arrived-at').value = localDatetimeValue();
+  document.getElementById('arrival-date').value = localDateValue();
+  document.getElementById('arrived-at').value    = localTimeValue();
   hide(document.getElementById('new-driver-field'));
   hide(document.getElementById('new-site-field'));
   hide(document.getElementById('new-client-field'));

@@ -87,18 +87,23 @@
         <h2>Arrival Time</h2>
 
         <div class="field">
+          <label for="arrival-date">Date <span class="req">*</span></label>
+          <input type="date" id="arrival-date" required>
+        </div>
+
+        <div class="field">
           <label for="arrived-at">Arrived At <span class="req">*</span></label>
-          <input type="datetime-local" id="arrived-at" required>
+          <input type="time" id="arrived-at" required>
           <p class="hint">Set to now automatically — adjust if needed</p>
         </div>
 
         <div class="field">
-          <label for="dispatch-time">Dispatch After</label>
+          <label for="dispatch-offset">Dispatch After</label>
           <div class="dispatch-offset-row">
             <input type="number" id="dispatch-offset" min="0" inputmode="numeric" placeholder="e.g. 30">
             <span class="dispatch-offset-label">mins after arrival</span>
           </div>
-          <input type="datetime-local" id="dispatch-time">
+          <input type="time" id="dispatch-time">
           <p class="hint">Enter minutes to auto-calculate, or set time manually</p>
         </div>
       </section>
