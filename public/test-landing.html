@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Be Cool Couriers</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f1117;
+      --card: #1a1d27;
+      --border: #2a2d3a;
+      --text: #e8eaf0;
+      --text-muted: #8b8fa8;
+      --accent: #3b82f6;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Views ── */
+    .view { display: none; flex-direction: column; min-height: 100vh; }
+    .view.active { display: flex; }
+
+    /* ── Header ── */
+    header {
+      padding: 40px 24px 24px;
+      text-align: center;
+    }
+    .logo {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 10px;
+    }
+    header h1 {
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+    header p {
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    /* ── Landing buttons ── */
+    .landing-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      padding: 16px 24px 40px;
+      max-width: 480px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .big-btn {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 28px 24px;
+      background: var(--card);
+      border: 2px solid var(--border);
+      border-radius: 16px;
+      cursor: pointer;
+      text-align: left;
+      width: 100%;
+      transition: border-color .15s, background .15s;
+      text-decoration: none;
+      color: inherit;
+    }
+    .big-btn:hover, .big-btn:active {
+      border-color: var(--accent);
+      background: #1f2235;
+    }
+    .big-btn-icon {
+      font-size: 36px;
+      flex-shrink: 0;
+      width: 56px;
+      text-align: center;
+    }
+    .big-btn-text strong {
+      display: block;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    .big-btn-text span {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+    .big-btn-arrow {
+      margin-left: auto;
+      font-size: 20px;
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+
+    /* ── Placeholder page ── */
+    .placeholder-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 24px;
+      text-align: center;
+      gap: 16px;
+    }
+    .placeholder-icon { font-size: 64px; }
+    .placeholder-main h2 { font-size: 22px; font-weight: 700; }
+    .placeholder-main p { font-size: 14px; color: var(--text-muted); max-width: 280px; line-height: 1.6; }
+
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 8px;
+      padding: 12px 24px;
+      background: var(--card);
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: border-color .15s;
+    }
+    .back-btn:hover { border-color: var(--accent); }
+
+    footer {
+      padding: 20px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Landing ── -->
+  <div class="view active" id="view-landing">
+    <header>
+      <div class="logo">Be Cool Couriers</div>
+      <h1>What are you doing today?</h1>
+      <p>Select an option to get started</p>
+    </header>
+
+    <main class="landing-main">
+
+      <a href="/" class="big-btn">
+        <div class="big-btn-icon">🚚</div>
+        <div class="big-btn-text">
+          <strong>BC Pickup / Drop off</strong>
+          <span>Record a delivery, pallet drop or stock pickup at a site</span>
+        </div>
+        <div class="big-btn-arrow">›</div>
+      </a>
+
+      <button class="big-btn" onclick="showView('view-boxes')">
+        <div class="big-btn-icon">📦</div>
+        <div class="big-btn-text">
+          <strong>Boxes Return</strong>
+          <span>Log boxes being returned from a run</span>
+        </div>
+        <div class="big-btn-arrow">›</div>
+      </button>
+
+    </main>
+
+    <footer>Be Cool Couriers © 2026</footer>
+  </div>
+
+  <!-- ── Boxes Return placeholder ── -->
+  <div class="view" id="view-boxes">
+    <header>
+      <div class="logo">Be Cool Couriers</div>
+      <h1>Boxes Return</h1>
+      <p>Coming soon</p>
+    </header>
+
+    <div class="placeholder-main">
+      <div class="placeholder-icon">📦</div>
+      <h2>Boxes Return</h2>
+      <p>This section is under construction. The form for logging box returns will appear here.</p>
+      <button class="back-btn" onclick="showView('view-landing')">← Back</button>
+    </div>
+
+    <footer>Be Cool Couriers © 2026</footer>
+  </div>
+
+  <script>
+    function showView(id) {
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      window.scrollTo(0, 0);
+    }
+  </script>
+
+</body>
+</html>
