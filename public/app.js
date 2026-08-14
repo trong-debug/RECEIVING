@@ -293,6 +293,9 @@ document.getElementById('delivery-form').addEventListener('submit', async e => {
   if (!arrived_at)  { showError('Please enter the arrival time.'); return; }
   if (!selectedDirection) { showError('Please select Inbound or Outbound.'); return; }
 
+  const anyDropoff = Object.values(dropoffActive).some(Boolean);
+  if (!anyDropoff) { showError('Please select a drop off type — CHEPS, LOSCAM, PLAIN or CARTONS.'); return; }
+
   for (const type of ['chep', 'loscam', 'plain']) {
     if (dropoffActive[type]) {
       const qty = parseInt(document.getElementById(type + '-qty').value) || 0;
