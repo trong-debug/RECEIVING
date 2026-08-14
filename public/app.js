@@ -39,17 +39,17 @@ const dropoffActive = { chep: false, loscam: false, plain: false, cartons: false
 const palletDisp    = { chep: null, loscam: null, plain: null };
 const palletQty     = { chep: 0,    loscam: 0,    plain: 0    };
 
-function setPalletQty(type, qty) {
-  // Toggle off if same value tapped again
-  if (palletQty[type] === qty) {
-    palletQty[type] = 0;
-    document.getElementById(type + '-qty-row').querySelectorAll('.qty-btn').forEach(b => b.classList.remove('selected'));
-    return;
-  }
-  palletQty[type] = qty;
-  document.getElementById(type + '-qty-row').querySelectorAll('.qty-btn').forEach(b => {
-    b.classList.toggle('selected', Number(b.textContent) === qty);
-  });
+function adjPalletQty(type, delta) {
+  palletQty[type] = Math.max(0, palletQty[type] + delta);
+  document.getElementById(type + '-qty-display').textContent = palletQty[type];
+}
+
+function startPalletHold(type, delta, e) {
+  if (e) e.preventDefault();
+  adjPalletQty(type, delta);
+  holdTimer = setTimeout(() => {
+    holdInterval = setInterval(() => adjPalletQty(type, delta), 80);
+  }, 400);
 }
 
 function toggleDropoff(type) {
@@ -77,7 +77,7 @@ function _resetDropoffPanel(type) {
   if (type === 'chep' || type === 'loscam' || type === 'plain') {
     palletDisp[type] = null;
     palletQty[type]  = 0;
-    document.getElementById(type + '-qty-row').querySelectorAll('.qty-btn').forEach(b => b.classList.remove('selected'));
+    document.getElementById(type + '-qty-display').textContent = '0';
     document.getElementById(type + '-disp-row').querySelectorAll('.disp-btn').forEach(b => b.classList.remove('selected'));
     if (type === 'chep') {
       document.getElementById('chep-docket-field').classList.add('hidden');
@@ -423,7 +423,7 @@ function resetForm() {
   for (const type of ['chep', 'loscam', 'plain']) {
     palletDisp[type] = null;
     palletQty[type]  = 0;
-    document.getElementById(type + '-qty-row').querySelectorAll('.qty-btn').forEach(b => b.classList.remove('selected'));
+    document.getElementById(type + '-qty-display').textContent = '0';
     document.getElementById(type + '-disp-row').querySelectorAll('.disp-btn').forEach(b => b.classList.remove('selected'));
   }
   document.getElementById('chep-docket-field').classList.add('hidden');

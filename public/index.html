@@ -145,15 +145,10 @@
         <div class="dropoff-panel hidden" id="dropoff-panel-chep">
           <div class="field">
             <label>CHEPS Quantity</label>
-            <div class="qty-btn-row" id="chep-qty-row">
-              <button type="button" class="qty-btn" onclick="setPalletQty('chep',1)">1</button>
-              <button type="button" class="qty-btn" onclick="setPalletQty('chep',2)">2</button>
-              <button type="button" class="qty-btn" onclick="setPalletQty('chep',3)">3</button>
-              <button type="button" class="qty-btn" onclick="setPalletQty('chep',4)">4</button>
-              <button type="button" class="qty-btn" onclick="setPalletQty('chep',5)">5</button>
-              <button type="button" class="qty-btn" onclick="setPalletQty('chep',6)">6</button>
-              <button type="button" class="qty-btn" onclick="setPalletQty('chep',7)">7</button>
-              <button type="button" class="qty-btn" onclick="setPalletQty('chep',8)">8</button>
+            <div class="pallet-counter">
+              <button type="button" class="pallet-btn" onmousedown="startPalletHold('chep',-1,event)" ontouchstart="startPalletHold('chep',-1,event)" onmouseup="stopHold()" onmouseleave="stopHold()" ontouchend="stopHold()">−</button>
+              <span class="pallet-num" id="chep-qty-display">0</span>
+              <button type="button" class="pallet-btn" onmousedown="startPalletHold('chep',1,event)" ontouchstart="startPalletHold('chep',1,event)" onmouseup="stopHold()" onmouseleave="stopHold()" ontouchend="stopHold()">+</button>
             </div>
           </div>
           <div class="field">
@@ -172,15 +167,10 @@
         <div class="dropoff-panel hidden" id="dropoff-panel-loscam">
           <div class="field">
             <label>LOSCAM Quantity</label>
-            <div class="qty-btn-row" id="loscam-qty-row">
-              <button type="button" class="qty-btn" onclick="setPalletQty('loscam',1)">1</button>
-              <button type="button" class="qty-btn" onclick="setPalletQty('loscam',2)">2</button>
-              <button type="button" class="qty-btn" onclick="setPalletQty('loscam',3)">3</button>
-              <button type="button" class="qty-btn" onclick="setPalletQty('loscam',4)">4</button>
-              <button type="button" class="qty-btn" onclick="setPalletQty('loscam',5)">5</button>
-              <button type="button" class="qty-btn" onclick="setPalletQty('loscam',6)">6</button>
-              <button type="button" class="qty-btn" onclick="setPalletQty('loscam',7)">7</button>
-              <button type="button" class="qty-btn" onclick="setPalletQty('loscam',8)">8</button>
+            <div class="pallet-counter">
+              <button type="button" class="pallet-btn" onmousedown="startPalletHold('loscam',-1,event)" ontouchstart="startPalletHold('loscam',-1,event)" onmouseup="stopHold()" onmouseleave="stopHold()" ontouchend="stopHold()">−</button>
+              <span class="pallet-num" id="loscam-qty-display">0</span>
+              <button type="button" class="pallet-btn" onmousedown="startPalletHold('loscam',1,event)" ontouchstart="startPalletHold('loscam',1,event)" onmouseup="stopHold()" onmouseleave="stopHold()" ontouchend="stopHold()">+</button>
             </div>
           </div>
           <div class="field">
@@ -195,15 +185,10 @@
         <div class="dropoff-panel hidden" id="dropoff-panel-plain">
           <div class="field">
             <label>PLAIN Quantity</label>
-            <div class="qty-btn-row" id="plain-qty-row">
-              <button type="button" class="qty-btn" onclick="setPalletQty('plain',1)">1</button>
-              <button type="button" class="qty-btn" onclick="setPalletQty('plain',2)">2</button>
-              <button type="button" class="qty-btn" onclick="setPalletQty('plain',3)">3</button>
-              <button type="button" class="qty-btn" onclick="setPalletQty('plain',4)">4</button>
-              <button type="button" class="qty-btn" onclick="setPalletQty('plain',5)">5</button>
-              <button type="button" class="qty-btn" onclick="setPalletQty('plain',6)">6</button>
-              <button type="button" class="qty-btn" onclick="setPalletQty('plain',7)">7</button>
-              <button type="button" class="qty-btn" onclick="setPalletQty('plain',8)">8</button>
+            <div class="pallet-counter">
+              <button type="button" class="pallet-btn" onmousedown="startPalletHold('plain',-1,event)" ontouchstart="startPalletHold('plain',-1,event)" onmouseup="stopHold()" onmouseleave="stopHold()" ontouchend="stopHold()">−</button>
+              <span class="pallet-num" id="plain-qty-display">0</span>
+              <button type="button" class="pallet-btn" onmousedown="startPalletHold('plain',1,event)" ontouchstart="startPalletHold('plain',1,event)" onmouseup="stopHold()" onmouseleave="stopHold()" ontouchend="stopHold()">+</button>
             </div>
           </div>
           <div class="field">
