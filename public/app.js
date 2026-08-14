@@ -121,6 +121,29 @@ async function refreshManageList() {
     : '<li class="manage-empty">No entries saved yet.</li>';
 }
 
+async function addEntry() {
+  const input = document.getElementById('manage-add-input');
+  const name  = input.value.trim();
+  if (!name) return;
+  await fetch('/api/' + currentManageType, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name })
+  });
+  // Add to the dropdown (before the __new__ option)
+  const sel     = document.getElementById(selectIdMap[currentManageType]);
+  const newOpt  = sel.querySelector('option[value="__new__"]');
+  const already = [...sel.options].some(o => o.value === name);
+  if (!already && sel) {
+    const opt = document.createElement('option');
+    opt.value = name; opt.textContent = name;
+    sel.insertBefore(opt, newOpt || null);
+  }
+  input.value = '';
+  input.focus();
+  await refreshManageList();
+}
+
 async function deleteEntry(type, name) {
   await fetch('/api/' + type + '/' + encodeURIComponent(name), { method: 'DELETE' });
   const sel = document.getElementById(selectIdMap[type]);

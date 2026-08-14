@@ -467,13 +467,19 @@
     }
     .modal-header h3 { font-size: 16px; font-weight: 700; }
     .modal-close { background: none; border: none; font-size: 22px; cursor: pointer; color: #666; line-height: 1; padding: 0 4px; }
-    .manage-list { list-style: none; padding: 8px 0; max-height: 320px; overflow-y: auto; }
+    .manage-list { list-style: none; padding: 8px 0; max-height: 260px; overflow-y: auto; }
     .manage-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 20px; gap: 12px; }
     .manage-item:hover { background: #f6f8fa; }
     .manage-item span { flex: 1; font-size: 15px; }
     .btn-delete-entry { background: none; border: none; color: #c53030; font-size: 16px; cursor: pointer; padding: 4px 6px; border-radius: 6px; line-height: 1; }
     .btn-delete-entry:hover { background: #ffe5e5; }
     .manage-empty { padding: 16px 20px; color: #666; font-size: 14px; }
+    .modal-add-row { display: flex; gap: 8px; padding: 12px 16px; border-top: 1px solid #d0d7de; }
+    .manage-add-input { flex: 1; padding: 9px 12px; border: 1px solid #d0d7de; border-radius: 8px; font-size: 15px; font-family: inherit; outline: none; }
+    .manage-add-input:focus { border-color: #005fcc; box-shadow: 0 0 0 3px #e8f1ff; }
+    .manage-add-btn { padding: 9px 16px; background: #005fcc; color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 700; font-family: inherit; cursor: pointer; white-space: nowrap; }
+    .manage-add-btn:hover { background: #004aaa; }
+    .manage-add-btn:active { transform: scale(0.97); }
 
     /* ═══════════════════════════════════════════
        BOXES RETURN FORM
@@ -1029,6 +1035,11 @@
         <button type="button" class="modal-close" onclick="closeManage()">×</button>
       </div>
       <ul id="manage-list" class="manage-list"></ul>
+      <div class="modal-add-row">
+        <input type="text" id="manage-add-input" class="manage-add-input" placeholder="Add new name…"
+          onkeydown="if(event.key==='Enter'){addEntry();event.preventDefault();}">
+        <button type="button" class="manage-add-btn" onclick="addEntry()">Add</button>
+      </div>
     </div>
   </div>
 
