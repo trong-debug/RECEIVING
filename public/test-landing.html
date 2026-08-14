@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
   <title>Be Cool Couriers</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -28,7 +28,6 @@
       --shadow-hover:  0 6px 28px rgba(15, 25, 35, 0.14);
     }
 
-    /* ── Tokens — dark (system) ── */
     @media (prefers-color-scheme: dark) {
       :root:not([data-theme="light"]) {
         --bg:            #080e18;
@@ -51,7 +50,6 @@
       }
     }
 
-    /* ── Tokens — explicit dark ── */
     :root[data-theme="dark"] {
       --bg:            #080e18;
       --bg-glow:       rgba(14, 165, 233, 0.07);
@@ -72,9 +70,7 @@
       --shadow-hover:  0 6px 32px rgba(0, 0, 0, 0.55);
     }
 
-    html, body {
-      height: 100%;
-    }
+    html, body { height: 100%; }
 
     body {
       background: var(--bg);
@@ -82,41 +78,24 @@
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
       -webkit-font-smoothing: antialiased;
       min-height: 100vh;
-      /* subtle dot grid */
       background-image: radial-gradient(var(--dot) 1px, transparent 1px);
       background-size: 28px 28px;
     }
 
     /* ── Views ── */
-    .view {
-      display: none;
-      flex-direction: column;
-      min-height: 100vh;
-    }
+    .view { display: none; flex-direction: column; min-height: 100vh; }
     .view.active { display: flex; }
 
-    /* ── Polar glow backdrop ── */
     .glow-bg {
       position: fixed;
       inset: 0;
       pointer-events: none;
-      background:
-        radial-gradient(ellipse 70% 50% at 50% 20%, var(--bg-glow), transparent 70%);
+      background: radial-gradient(ellipse 70% 50% at 50% 20%, var(--bg-glow), transparent 70%);
       z-index: 0;
     }
 
-    /* ── Layout ── */
-    .inner {
-      position: relative;
-      z-index: 1;
-      width: 100%;
-      max-width: 420px;
-      margin: 0 auto;
-      padding: 0 20px;
-    }
-
-    /* ── Header ── */
-    header {
+    /* ── Landing ── */
+    header.landing-header {
       position: relative;
       z-index: 1;
       padding: 52px 20px 32px;
@@ -133,7 +112,7 @@
       margin-bottom: 18px;
     }
 
-    header h1 {
+    header.landing-header h1 {
       font-size: 28px;
       font-weight: 800;
       color: var(--text);
@@ -143,13 +122,11 @@
       margin-bottom: 8px;
     }
 
-    header p {
+    header.landing-header p {
       font-size: 14px;
       color: var(--muted);
-      letter-spacing: .01em;
     }
 
-    /* ── Button cards ── */
     main.landing-main {
       position: relative;
       z-index: 1;
@@ -181,153 +158,423 @@
       transition: border-color .18s, background .18s, box-shadow .18s, transform .12s;
       -webkit-tap-highlight-color: transparent;
     }
-
-    .task-btn:active {
-      transform: scale(0.977);
-    }
-
-    /* Blue — primary */
-    .task-btn.primary:hover,
-    .task-btn.primary:focus-visible {
+    .task-btn:active { transform: scale(0.977); }
+    .task-btn.primary:hover, .task-btn.primary:focus-visible {
       border-color: var(--border-hover);
       background: var(--surface-hover);
       box-shadow: var(--shadow-hover), 0 0 0 4px var(--accent-glow);
       outline: none;
     }
-
-    /* Amber — secondary */
-    .task-btn.secondary {
-      background: var(--amber-surface);
-      border-color: var(--amber-border);
-    }
-    .task-btn.secondary:hover,
-    .task-btn.secondary:focus-visible {
+    .task-btn.secondary { background: var(--amber-surface); border-color: var(--amber-border); }
+    .task-btn.secondary:hover, .task-btn.secondary:focus-visible {
       border-color: var(--amber);
       box-shadow: var(--shadow-hover), 0 0 0 4px var(--amber-glow);
       outline: none;
     }
 
     .btn-icon {
-      width: 52px;
-      height: 52px;
+      width: 52px; height: 52px;
       border-radius: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 26px;
-      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 26px; flex-shrink: 0;
     }
     .primary .btn-icon  { background: var(--accent-glow); }
     .secondary .btn-icon { background: var(--amber-glow); }
 
     .btn-body strong {
       display: block;
-      font-size: 17px;
-      font-weight: 700;
-      color: var(--text);
-      letter-spacing: -.01em;
+      font-size: 17px; font-weight: 700;
+      color: var(--text); letter-spacing: -.01em;
       margin-bottom: 4px;
     }
-    .btn-body span {
-      font-size: 13px;
-      color: var(--muted);
-      line-height: 1.5;
-    }
+    .btn-body span { font-size: 13px; color: var(--muted); line-height: 1.5; }
 
-    .btn-arrow {
-      font-size: 22px;
-      color: var(--muted);
-      line-height: 1;
-      justify-self: end;
-    }
+    .btn-arrow { font-size: 22px; color: var(--muted); line-height: 1; justify-self: end; }
     .primary .btn-arrow  { color: var(--accent); }
     .secondary .btn-arrow { color: var(--amber); }
 
-    /* ── Placeholder view ── */
-    .placeholder-view {
-      position: relative;
-      z-index: 1;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
+    /* ── Shared footer ── */
+    footer {
+      position: relative; z-index: 1;
+      padding: 0 20px 28px;
       text-align: center;
-      padding: 40px 32px;
-      gap: 14px;
-      max-width: 420px;
-      width: 100%;
-      margin: 0 auto;
+      font-size: 11px; letter-spacing: .06em; text-transform: uppercase;
+      color: var(--muted); opacity: .6;
     }
 
-    .placeholder-icon {
-      font-size: 56px;
-      margin-bottom: 4px;
+    /* ─────────────────────────────────────────────
+       Boxes Return form
+    ───────────────────────────────────────────── */
+
+    /* Top-bar */
+    .form-topbar {
+      position: relative; z-index: 1;
+      display: flex; align-items: center; gap: 14px;
+      padding: 20px 20px 8px;
+      max-width: 460px; width: 100%; margin: 0 auto;
     }
 
-    .placeholder-view h2 {
-      font-size: 22px;
-      font-weight: 800;
-      color: var(--text);
-      letter-spacing: -.02em;
-    }
-
-    .placeholder-view p {
-      font-size: 14px;
-      color: var(--muted);
-      line-height: 1.65;
-      max-width: 260px;
-    }
-
-    .chip {
-      display: inline-block;
-      background: var(--amber-glow);
-      color: var(--amber);
-      border: 1px solid var(--amber-border);
-      border-radius: 100px;
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: .1em;
-      text-transform: uppercase;
-      padding: 4px 12px;
-      margin-bottom: 4px;
-    }
-
-    .back-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      margin-top: 8px;
-      padding: 13px 24px;
-      background: var(--surface);
+    .back-icon-btn {
+      width: 40px; height: 40px;
+      border-radius: 11px;
       border: 1.5px solid var(--border);
-      border-radius: 12px;
+      background: var(--surface);
       color: var(--text);
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
+      font-size: 20px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; flex-shrink: 0;
       transition: border-color .15s, background .15s;
       -webkit-tap-highlight-color: transparent;
     }
-    .back-btn:hover { border-color: var(--border-hover); background: var(--surface-hover); }
-    .back-btn:active { transform: scale(0.97); }
+    .back-icon-btn:hover  { border-color: var(--border-hover); background: var(--surface-hover); }
+    .back-icon-btn:active { transform: scale(0.94); }
 
-    /* ── Footer ── */
-    footer {
-      position: relative;
-      z-index: 1;
-      padding: 0 20px 28px;
-      text-align: center;
-      font-size: 11px;
-      letter-spacing: .06em;
-      text-transform: uppercase;
-      color: var(--muted);
-      opacity: .6;
+    .form-topbar-info { flex: 1; }
+    .form-topbar-wordmark { font-size: 10px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: var(--accent); margin-bottom: 3px; }
+    .form-topbar-title  { font-size: 20px; font-weight: 800; color: var(--text); letter-spacing: -.02em; line-height: 1.2; }
+
+    /* Form body */
+    .form-body {
+      position: relative; z-index: 1;
+      flex: 1;
+      display: flex; flex-direction: column; gap: 12px;
+      padding: 16px 20px 48px;
+      max-width: 460px; width: 100%; margin: 0 auto;
     }
 
+    /* Card */
+    .fcard {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 18px;
+      padding: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .fcard-title {
+      font-size: 11px; font-weight: 700;
+      letter-spacing: .12em; text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+
+    .field-label {
+      display: block;
+      font-size: 13px; font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 7px;
+    }
+    .field-label .req { color: #e53e3e; }
+
+    .f-input {
+      width: 100%;
+      padding: 13px 16px;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 16px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color .15s;
+      -webkit-appearance: none;
+    }
+    .f-input:focus { border-color: var(--border-hover); }
+    .f-input::placeholder { color: var(--muted); opacity: .55; }
+
+    /* Field gap inside card */
+    .fcard .field + .field { margin-top: 16px; }
+
+    /* ── Barcode type toggles ── */
+    .barcode-type-row {
+      display: flex; gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .btype-btn {
+      flex: 1;
+      padding: 10px 6px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      background: var(--bg);
+      color: var(--muted);
+      font-size: 12px; font-weight: 700;
+      text-align: center; cursor: pointer;
+      transition: all .14s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btype-btn.on {
+      border-color: var(--accent);
+      background: var(--accent-glow);
+      color: var(--accent);
+    }
+    .btype-btn:active { transform: scale(0.95); }
+
+    /* ── Scan button ── */
+    .scan-btn {
+      width: 100%;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      padding: 16px 20px;
+      border: 1.5px solid var(--amber-border);
+      border-radius: 14px;
+      background: var(--amber-surface);
+      color: var(--amber);
+      font-size: 16px; font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all .15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .scan-btn:hover  { border-color: var(--amber); box-shadow: 0 0 0 3px var(--amber-glow); }
+    .scan-btn:active { transform: scale(0.98); }
+    .scan-btn-icon   { font-size: 22px; }
+
+    /* ── Manual fallback ── */
+    .manual-row {
+      display: flex; gap: 8px;
+      margin-top: 12px;
+    }
+    .manual-row .f-input { flex: 1; padding: 12px 14px; font-size: 15px; }
+    .manual-add-btn {
+      padding: 12px 16px;
+      border: 1.5px solid var(--border-hover);
+      border-radius: 12px;
+      background: var(--accent-glow);
+      color: var(--accent);
+      font-size: 14px; font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      white-space: nowrap;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .manual-add-btn:active { transform: scale(0.96); }
+
+    .manual-hint {
+      font-size: 12px; color: var(--muted);
+      text-align: center;
+      margin-top: 10px;
+    }
+    .manual-toggle-link {
+      background: none; border: none;
+      color: var(--accent); font-size: 12px; font-weight: 600;
+      cursor: pointer; padding: 0; text-decoration: underline;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* ── Scanned list ── */
+    .scanned-wrap { margin-top: 16px; }
+
+    .scanned-label {
+      font-size: 11px; font-weight: 700;
+      letter-spacing: .1em; text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .scanned-list { display: flex; flex-direction: column; gap: 6px; }
+
+    .scanned-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 14px;
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+    }
+
+    .scanned-fmt {
+      font-size: 10px; font-weight: 700;
+      letter-spacing: .08em; text-transform: uppercase;
+      color: var(--accent);
+      background: var(--accent-glow);
+      border-radius: 6px;
+      padding: 3px 8px;
+      flex-shrink: 0;
+    }
+
+    .scanned-val {
+      flex: 1;
+      font-size: 14px; font-weight: 600;
+      color: var(--text);
+      word-break: break-all;
+    }
+
+    .scanned-del {
+      width: 28px; height: 28px;
+      border: none; background: none;
+      color: var(--muted);
+      font-size: 20px; line-height: 1;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 7px;
+      cursor: pointer; flex-shrink: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .scanned-del:hover { color: #dc2626; background: rgba(220,38,38,.08); }
+
+    .no-scans {
+      text-align: center;
+      font-size: 13px; color: var(--muted);
+      padding: 14px 0;
+    }
+
+    /* ── Submit ── */
+    .boxes-submit-btn {
+      width: 100%;
+      padding: 18px;
+      border: none; border-radius: 14px;
+      background: var(--accent);
+      color: #fff;
+      font-size: 17px; font-weight: 700; font-family: inherit;
+      letter-spacing: -.01em;
+      cursor: pointer;
+      transition: opacity .15s, transform .12s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .boxes-submit-btn:hover  { opacity: .9; }
+    .boxes-submit-btn:active { transform: scale(0.98); }
+
+    .box-error {
+      text-align: center;
+      font-size: 14px; color: #dc2626;
+      padding: 6px 0;
+    }
+    .box-error.hidden { display: none; }
+
+    /* ── Success state ── */
+    .boxes-success {
+      position: relative; z-index: 1;
+      flex: 1;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 16px; text-align: center;
+      padding: 40px 32px;
+      max-width: 420px; width: 100%; margin: 0 auto;
+    }
+    .boxes-success.hidden { display: none; }
+
+    .success-icon-big { font-size: 64px; }
+
+    .boxes-success h2 {
+      font-size: 24px; font-weight: 800;
+      color: var(--text); letter-spacing: -.02em;
+    }
+
+    .boxes-success p {
+      font-size: 14px; color: var(--muted);
+      line-height: 1.6; max-width: 280px;
+    }
+
+    .reset-btn {
+      margin-top: 4px;
+      padding: 14px 32px;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      background: var(--surface);
+      color: var(--text);
+      font-size: 15px; font-weight: 600; font-family: inherit;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      transition: border-color .15s, background .15s;
+    }
+    .reset-btn:hover { border-color: var(--border-hover); background: var(--surface-hover); }
+    .reset-btn:active { transform: scale(0.97); }
+
+    /* ─────────────────────────────────────────────
+       Camera scan modal
+    ───────────────────────────────────────────── */
+    .scan-modal {
+      position: fixed; inset: 0; z-index: 200;
+      background: #000;
+      display: flex; flex-direction: column;
+    }
+    .scan-modal.hidden { display: none; }
+
+    .scan-video-wrap {
+      position: relative; flex: 1; overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    #scan-video {
+      width: 100%; height: 100%;
+      object-fit: cover;
+    }
+
+    .scan-overlay {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      pointer-events: none;
+    }
+
+    /* Viewfinder with shadow mask */
+    .scan-frame {
+      width: min(75vw, 300px);
+      aspect-ratio: 3/2;
+      border: 2.5px solid rgba(255,255,255,0.85);
+      border-radius: 16px;
+      box-shadow: 0 0 0 9999px rgba(0,0,0,0.55);
+      position: relative;
+    }
+
+    /* Blue corner accents */
+    .scan-frame::before,
+    .scan-frame::after {
+      content: '';
+      position: absolute;
+      width: 22px; height: 22px;
+      border-color: #38bdf8;
+      border-style: solid;
+    }
+    .scan-frame::before { top: -2px; left: -2px;  border-width: 3px 0 0 3px; border-radius: 4px 0 0 0; }
+    .scan-frame::after  { bottom: -2px; right: -2px; border-width: 0 3px 3px 0; border-radius: 0 0 4px 0; }
+
+    /* Sweep line */
+    @keyframes sweep {
+      0%   { top: 10%; opacity: .9; }
+      50%  { top: 85%; opacity: .6; }
+      100% { top: 10%; opacity: .9; }
+    }
+    .scan-line {
+      position: absolute;
+      left: 6%; right: 6%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #38bdf8 30%, #38bdf8 70%, transparent);
+      border-radius: 2px;
+      animation: sweep 2s ease-in-out infinite;
+      top: 10%;
+    }
+
+    /* Footer area of modal */
+    .scan-footer {
+      padding: 20px 20px 40px;
+      background: #080e18;
+      display: flex; flex-direction: column;
+      align-items: center; gap: 14px;
+    }
+
+    #scan-status {
+      font-size: 15px; font-weight: 600;
+      color: #94a3b8;
+      text-align: center;
+      min-height: 24px;
+    }
+    #scan-status.found { color: #34d399; font-size: 16px; }
+
+    .scan-close-btn {
+      padding: 14px 48px;
+      border: 1.5px solid rgba(255,255,255,0.18);
+      border-radius: 12px;
+      background: rgba(255,255,255,0.07);
+      color: #cbd5e1;
+      font-size: 15px; font-weight: 600; font-family: inherit;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .scan-close-btn:active { opacity: .75; }
+
     @media (prefers-reduced-motion: reduce) {
-      .task-btn, .back-btn { transition: none; }
-      .task-btn:active, .back-btn:active { transform: none; }
+      .task-btn, .back-icon-btn, .scan-btn, .boxes-submit-btn, .reset-btn { transition: none; }
+      .task-btn:active, .back-icon-btn:active, .scan-btn:active,
+      .boxes-submit-btn:active, .reset-btn:active { transform: none; }
+      .scan-line { animation: none; top: 50%; }
     }
   </style>
 </head>
@@ -337,7 +584,8 @@
 
   <!-- ── Landing ── -->
   <div class="view active" id="view-landing">
-    <header>
+
+    <header class="landing-header">
       <div class="wordmark">Be Cool Couriers</div>
       <h1>What are you doing today?</h1>
       <p>Select a task to get started</p>
@@ -368,26 +616,305 @@
     <footer>Be Cool Couriers &copy; 2026</footer>
   </div>
 
-  <!-- ── Boxes Return to Warehouse placeholder ── -->
+  <!-- ── Boxes Return to Warehouse ── -->
   <div class="view" id="view-boxes">
     <div class="glow-bg"></div>
 
-    <div class="placeholder-view">
-      <div class="chip">Coming soon</div>
-      <div class="placeholder-icon">📦</div>
-      <h2>Boxes Return to Warehouse</h2>
-      <p>The form for logging box returns will be built here once the layout is approved.</p>
-      <button class="back-btn" onclick="showView('view-landing')">← Back</button>
+    <!-- Top bar -->
+    <div class="form-topbar">
+      <button class="back-icon-btn" onclick="showView('view-landing')">‹</button>
+      <div class="form-topbar-info">
+        <div class="form-topbar-wordmark">Be Cool Couriers</div>
+        <div class="form-topbar-title">Boxes Return to Warehouse</div>
+      </div>
+    </div>
+
+    <!-- Form -->
+    <div id="boxes-form" class="form-body">
+
+      <!-- Subcontractor -->
+      <div class="fcard">
+        <div class="fcard-title">Driver / Subcontractor</div>
+        <div class="field">
+          <label class="field-label" for="subcontractor">Subcontractor Name <span class="req">*</span></label>
+          <input class="f-input" type="text" id="subcontractor" placeholder="Full name or company" autocomplete="name">
+        </div>
+      </div>
+
+      <!-- Run name -->
+      <div class="fcard">
+        <div class="fcard-title">Run Details</div>
+        <div class="field">
+          <label class="field-label" for="run-name">Run Name <span class="req">*</span></label>
+          <input class="f-input" type="text" id="run-name" placeholder="e.g. RUN 42, Metro North">
+        </div>
+      </div>
+
+      <!-- Barcode scanning -->
+      <div class="fcard">
+        <div class="fcard-title">Scan Boxes</div>
+
+        <!-- Format toggles -->
+        <div class="barcode-type-row">
+          <button type="button" class="btype-btn on"  data-fmt="code_128" onclick="toggleFmt(this)">Code 128</button>
+          <button type="button" class="btype-btn on"  data-fmt="code_39"  onclick="toggleFmt(this)">Code 39</button>
+          <button type="button" class="btype-btn on"  data-fmt="qr_code"  onclick="toggleFmt(this)">QR Code</button>
+        </div>
+
+        <!-- Scan button -->
+        <button type="button" class="scan-btn" onclick="startScan()">
+          <span class="scan-btn-icon">📷</span>
+          <span>Scan Barcode</span>
+        </button>
+
+        <!-- Manual entry toggle -->
+        <p class="manual-hint">
+          Can't scan? &nbsp;
+          <button type="button" class="manual-toggle-link" onclick="toggleManual()">Enter manually</button>
+        </p>
+
+        <!-- Manual entry (hidden by default) -->
+        <div id="manual-section" class="manual-row" style="display:none">
+          <input class="f-input" type="text" id="manual-barcode" placeholder="Type barcode value…"
+            onkeydown="if(event.key==='Enter'){addManual();event.preventDefault();}">
+          <button type="button" class="manual-add-btn" onclick="addManual()">Add</button>
+        </div>
+
+        <!-- Scanned list -->
+        <div class="scanned-wrap">
+          <div id="no-scans" class="no-scans">No boxes scanned yet</div>
+          <div id="scanned-list" class="scanned-list"></div>
+        </div>
+      </div>
+
+      <!-- Error -->
+      <div id="box-error" class="box-error hidden"></div>
+
+      <!-- Submit -->
+      <button type="button" class="boxes-submit-btn" onclick="submitReturn()">Submit Return</button>
+
+    </div>
+
+    <!-- Success state (hidden until submit) -->
+    <div id="boxes-success" class="boxes-success hidden">
+      <div class="success-icon-big">✅</div>
+      <h2>Return Recorded!</h2>
+      <p id="success-detail"></p>
+      <button type="button" class="reset-btn" onclick="resetBoxes()">Submit Another</button>
     </div>
 
     <footer>Be Cool Couriers &copy; 2026</footer>
   </div>
 
+  <!-- ── Camera scan modal ── -->
+  <div id="scan-modal" class="scan-modal hidden">
+    <div class="scan-video-wrap">
+      <video id="scan-video" autoplay playsinline muted></video>
+      <div class="scan-overlay">
+        <div class="scan-frame">
+          <div class="scan-line"></div>
+        </div>
+      </div>
+    </div>
+    <div class="scan-footer">
+      <div id="scan-status">Point camera at barcode</div>
+      <button type="button" class="scan-close-btn" onclick="stopScan()">Cancel</button>
+    </div>
+  </div>
+
   <script>
+    /* ── View navigation ── */
     function showView(id) {
       document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
       document.getElementById(id).classList.add('active');
       window.scrollTo(0, 0);
+    }
+
+    /* ── Format toggle ── */
+    const FORMAT_LABELS = { code_128: 'Code 128', code_39: 'Code 39', qr_code: 'QR', manual: 'Manual' };
+
+    function toggleFmt(btn) {
+      const on = document.querySelectorAll('.btype-btn.on');
+      if (btn.classList.contains('on') && on.length === 1) return; // keep ≥1 active
+      btn.classList.toggle('on');
+    }
+
+    function activeFormats() {
+      return [...document.querySelectorAll('.btype-btn.on')].map(b => b.dataset.fmt);
+    }
+
+    /* ── Manual entry ── */
+    let manualVisible = false;
+    function toggleManual() {
+      manualVisible = !manualVisible;
+      document.getElementById('manual-section').style.display = manualVisible ? 'flex' : 'none';
+      if (manualVisible) document.getElementById('manual-barcode').focus();
+    }
+
+    function addManual() {
+      const input = document.getElementById('manual-barcode');
+      const val = input.value.trim();
+      if (!val) return;
+      addScanned(val, 'manual');
+      input.value = '';
+      input.focus();
+    }
+
+    /* ── Scanned list state ── */
+    let scannedItems = [];
+
+    function addScanned(value, format) {
+      if (scannedItems.some(i => i.value === value)) {
+        showBoxError('Already scanned: ' + value);
+        return;
+      }
+      scannedItems.push({ value, format });
+      renderList();
+      clearBoxError();
+    }
+
+    function removeScanned(idx) {
+      scannedItems.splice(idx, 1);
+      renderList();
+    }
+
+    function renderList() {
+      const noScans = document.getElementById('no-scans');
+      const list    = document.getElementById('scanned-list');
+      if (scannedItems.length === 0) {
+        noScans.style.display = '';
+        list.innerHTML = '';
+        return;
+      }
+      noScans.style.display = 'none';
+      list.innerHTML = scannedItems.map((item, idx) => `
+        <div class="scanned-item">
+          <span class="scanned-fmt">${esc(FORMAT_LABELS[item.format] || item.format)}</span>
+          <span class="scanned-val">${esc(item.value)}</span>
+          <button class="scanned-del" onclick="removeScanned(${idx})" title="Remove">×</button>
+        </div>
+      `).join('');
+    }
+
+    /* ── Camera / BarcodeDetector ── */
+    let scanning      = false;
+    let cameraStream  = null;
+    let scanRaf       = null;
+    let detector      = null;
+
+    async function startScan() {
+      clearBoxError();
+
+      if (!('BarcodeDetector' in window)) {
+        // Native API not available — show manual input as fallback
+        if (!manualVisible) toggleManual();
+        showBoxError('Camera scanning not supported on this browser. Please enter the barcode manually.');
+        return;
+      }
+
+      const fmts = activeFormats();
+      if (fmts.length === 0) {
+        showBoxError('Please select at least one barcode format.');
+        return;
+      }
+
+      try {
+        detector = new BarcodeDetector({ formats: fmts });
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } }
+        });
+        cameraStream = stream;
+
+        const video = document.getElementById('scan-video');
+        video.srcObject = stream;
+        await video.play();
+
+        document.getElementById('scan-modal').classList.remove('hidden');
+        document.getElementById('scan-status').textContent = 'Point camera at barcode';
+        document.getElementById('scan-status').classList.remove('found');
+
+        scanning = true;
+        rafScan(video);
+
+      } catch (err) {
+        if (err.name === 'NotAllowedError') {
+          showBoxError('Camera permission denied. Please allow camera access and try again.');
+        } else {
+          if (!manualVisible) toggleManual();
+          showBoxError('Could not start camera. Please enter the barcode manually.');
+        }
+      }
+    }
+
+    function rafScan(video) {
+      if (!scanning) return;
+      detector.detect(video).then(results => {
+        if (!scanning) return;
+        if (results.length > 0) {
+          const { rawValue, format } = results[0];
+          const statusEl = document.getElementById('scan-status');
+          statusEl.textContent = '✓ ' + rawValue;
+          statusEl.classList.add('found');
+          setTimeout(() => {
+            stopScan();
+            addScanned(rawValue, format);
+          }, 700);
+        } else {
+          scanRaf = requestAnimationFrame(() => rafScan(video));
+        }
+      }).catch(() => {
+        scanRaf = requestAnimationFrame(() => rafScan(video));
+      });
+    }
+
+    function stopScan() {
+      scanning = false;
+      if (scanRaf) { cancelAnimationFrame(scanRaf); scanRaf = null; }
+      if (cameraStream) { cameraStream.getTracks().forEach(t => t.stop()); cameraStream = null; }
+      const video = document.getElementById('scan-video');
+      video.srcObject = null;
+      document.getElementById('scan-modal').classList.add('hidden');
+    }
+
+    /* ── Submit ── */
+    function submitReturn() {
+      const sub  = document.getElementById('subcontractor').value.trim();
+      const run  = document.getElementById('run-name').value.trim();
+      if (!sub)               { showBoxError('Please enter the subcontractor name.'); return; }
+      if (!run)               { showBoxError('Please enter the run name.'); return; }
+      if (!scannedItems.length) { showBoxError('Please scan at least one box barcode.'); return; }
+      clearBoxError();
+
+      document.getElementById('success-detail').textContent =
+        `${sub} · ${run} · ${scannedItems.length} box${scannedItems.length !== 1 ? 'es' : ''}`;
+
+      document.getElementById('boxes-form').classList.add('hidden');
+      document.getElementById('boxes-success').classList.remove('hidden');
+    }
+
+    function resetBoxes() {
+      document.getElementById('subcontractor').value = '';
+      document.getElementById('run-name').value = '';
+      scannedItems = [];
+      renderList();
+      clearBoxError();
+      document.getElementById('boxes-form').classList.remove('hidden');
+      document.getElementById('boxes-success').classList.add('hidden');
+      if (manualVisible) toggleManual();
+    }
+
+    /* ── Error helpers ── */
+    function showBoxError(msg) {
+      const el = document.getElementById('box-error');
+      el.textContent = msg;
+      el.classList.remove('hidden');
+    }
+    function clearBoxError() {
+      document.getElementById('box-error').classList.add('hidden');
+    }
+
+    function esc(str) {
+      return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
     }
   </script>
 
