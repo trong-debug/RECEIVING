@@ -570,6 +570,28 @@
     }
     .scan-close-btn:active { opacity: .75; }
 
+    /* ── Delivery iframe view ── */
+    .iframe-topbar {
+      position: relative; z-index: 1;
+      display: flex; align-items: center; gap: 14px;
+      padding: 12px 16px;
+      background: var(--surface);
+      border-bottom: 1.5px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .iframe-topbar-title {
+      font-size: 16px; font-weight: 700;
+      color: var(--text); letter-spacing: -.01em;
+    }
+
+    .delivery-frame {
+      flex: 1;
+      width: 100%;
+      border: none;
+      display: block;
+    }
+
     @media (prefers-reduced-motion: reduce) {
       .task-btn, .back-icon-btn, .scan-btn, .boxes-submit-btn, .reset-btn { transition: none; }
       .task-btn:active, .back-icon-btn:active, .scan-btn:active,
@@ -593,14 +615,14 @@
 
     <main class="landing-main">
 
-      <a href="https://bcreceivinglogs.up.railway.app/" class="task-btn primary">
+      <button class="task-btn primary" onclick="showView('view-delivery')">
         <div class="btn-icon">🚚</div>
         <div class="btn-body">
           <strong>Truck Pick Up &amp; Drop off</strong>
           <span>Record a delivery or pallet drop at a site</span>
         </div>
         <div class="btn-arrow">›</div>
-      </a>
+      </button>
 
       <button class="task-btn secondary" onclick="showView('view-boxes')">
         <div class="btn-icon">📦</div>
@@ -704,6 +726,20 @@
     </div>
 
     <footer>Be Cool Couriers &copy; 2026</footer>
+  </div>
+
+  <!-- ── Truck Pick Up & Drop off (embedded) ── -->
+  <div class="view" id="view-delivery">
+    <div class="iframe-topbar">
+      <button class="back-icon-btn" onclick="showView('view-landing')">‹</button>
+      <div class="iframe-topbar-title">Truck Pick Up &amp; Drop off</div>
+    </div>
+    <iframe
+      class="delivery-frame"
+      src="https://bcreceivinglogs.up.railway.app/"
+      title="Truck Pick Up &amp; Drop off"
+      allow="camera; microphone">
+    </iframe>
   </div>
 
   <!-- ── Camera scan modal ── -->
