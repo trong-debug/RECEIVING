@@ -37,6 +37,20 @@ function setLocation(loc) {
 
 const dropoffActive = { chep: false, loscam: false, plain: false, cartons: false };
 const palletDisp    = { chep: null, loscam: null, plain: null };
+const palletQty     = { chep: 0,    loscam: 0,    plain: 0    };
+
+function setPalletQty(type, qty) {
+  // Toggle off if same value tapped again
+  if (palletQty[type] === qty) {
+    palletQty[type] = 0;
+    document.getElementById(type + '-qty-row').querySelectorAll('.qty-btn').forEach(b => b.classList.remove('selected'));
+    return;
+  }
+  palletQty[type] = qty;
+  document.getElementById(type + '-qty-row').querySelectorAll('.qty-btn').forEach(b => {
+    b.classList.toggle('selected', Number(b.textContent) === qty);
+  });
+}
 
 function toggleDropoff(type) {
   const wasActive = dropoffActive[type];
@@ -62,7 +76,8 @@ function toggleDropoff(type) {
 function _resetDropoffPanel(type) {
   if (type === 'chep' || type === 'loscam' || type === 'plain') {
     palletDisp[type] = null;
-    document.getElementById(type + '-qty').value = '';
+    palletQty[type]  = 0;
+    document.getElementById(type + '-qty-row').querySelectorAll('.qty-btn').forEach(b => b.classList.remove('selected'));
     document.getElementById(type + '-disp-row').querySelectorAll('.disp-btn').forEach(b => b.classList.remove('selected'));
     if (type === 'chep') {
       document.getElementById('chep-docket-field').classList.add('hidden');
@@ -298,9 +313,8 @@ document.getElementById('delivery-form').addEventListener('submit', async e => {
 
   for (const type of ['chep', 'loscam', 'plain']) {
     if (dropoffActive[type]) {
-      const qty = parseInt(document.getElementById(type + '-qty').value) || 0;
-      if (qty <= 0) { showError(`Please enter a quantity for ${type.toUpperCase()}.`); return; }
-      if (!palletDisp[type]) { showError(`Please select Exchanged, Transfer or Drop off for ${type.toUpperCase()}.`); return; }
+      if (palletQty[type] <= 0) { showError(`Please select a quantity for ${type.toUpperCase()}.`); return; }
+      if (!palletDisp[type])    { showError(`Please select a disposition for ${type.toUpperCase()}.`); return; }
     }
   }
   if (dropoffActive.cartons) {
@@ -313,11 +327,11 @@ document.getElementById('delivery-form').addEventListener('submit', async e => {
     site_name,
     address: document.getElementById('address').value.trim() || null,
     arrived_at,
-    chep_count:         dropoffActive.chep    ? Math.max(0, parseInt(document.getElementById('chep-qty').value)    || 0) : 0,
+    chep_count:         dropoffActive.chep    ? palletQty.chep    : 0,
     chep_disposition:   dropoffActive.chep    ? palletDisp.chep   : null,
-    loscam_count:       dropoffActive.loscam  ? Math.max(0, parseInt(document.getElementById('loscam-qty').value)  || 0) : 0,
+    loscam_count:       dropoffActive.loscam  ? palletQty.loscam  : 0,
     loscam_disposition: dropoffActive.loscam  ? palletDisp.loscam : null,
-    plain_count:        dropoffActive.plain   ? Math.max(0, parseInt(document.getElementById('plain-qty').value)   || 0) : 0,
+    plain_count:        dropoffActive.plain   ? palletQty.plain   : 0,
     plain_disposition:  dropoffActive.plain   ? palletDisp.plain  : null,
     num_cartons:        dropoffActive.cartons ? Math.max(0, parseInt(document.getElementById('num-cartons').value) || 0) : 0,
     num_satchels: 0,
@@ -408,7 +422,8 @@ function resetForm() {
   }
   for (const type of ['chep', 'loscam', 'plain']) {
     palletDisp[type] = null;
-    document.getElementById(type + '-qty').value = '';
+    palletQty[type]  = 0;
+    document.getElementById(type + '-qty-row').querySelectorAll('.qty-btn').forEach(b => b.classList.remove('selected'));
     document.getElementById(type + '-disp-row').querySelectorAll('.disp-btn').forEach(b => b.classList.remove('selected'));
   }
   document.getElementById('chep-docket-field').classList.add('hidden');
