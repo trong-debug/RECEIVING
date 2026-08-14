@@ -109,6 +109,16 @@ async function openManage(type, label) {
   document.getElementById('manage-title').textContent = 'Edit ' + label;
   await refreshManageList();
   document.getElementById('manage-modal').classList.remove('hidden');
+  // Auto-submit when a multiline list is pasted
+  const input = document.getElementById('manage-add-input');
+  input.onpaste = e => {
+    const text = (e.clipboardData || window.clipboardData).getData('text');
+    if (text.includes('\n') || (text.match(/,/g) || []).length > 1) {
+      e.preventDefault();
+      input.value = text;
+      setTimeout(addEntry, 0);
+    }
+  };
 }
 
 async function refreshManageList() {
@@ -123,22 +133,27 @@ async function refreshManageList() {
 
 async function addEntry() {
   const input = document.getElementById('manage-add-input');
-  const name  = input.value.trim();
-  if (!name) return;
-  await fetch('/api/' + currentManageType, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name })
-  });
-  // Add to the dropdown (before the __new__ option)
-  const sel     = document.getElementById(selectIdMap[currentManageType]);
-  const newOpt  = sel.querySelector('option[value="__new__"]');
-  const already = [...sel.options].some(o => o.value === name);
-  if (!already && sel) {
-    const opt = document.createElement('option');
-    opt.value = name; opt.textContent = name;
-    sel.insertBefore(opt, newOpt || null);
+  const raw   = input.value;
+  // Split by newline or comma to support pasted lists
+  const names = raw.split(/[\n,]+/).map(n => n.trim()).filter(Boolean);
+  if (!names.length) return;
+
+  const sel    = document.getElementById(selectIdMap[currentManageType]);
+  const newOpt = sel ? sel.querySelector('option[value="__new__"]') : null;
+
+  for (const name of names) {
+    await fetch('/api/' + currentManageType, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name })
+    });
+    if (sel && ![...sel.options].some(o => o.value === name)) {
+      const opt = document.createElement('option');
+      opt.value = name; opt.textContent = name;
+      sel.insertBefore(opt, newOpt || null);
+    }
   }
+
   input.value = '';
   input.focus();
   await refreshManageList();

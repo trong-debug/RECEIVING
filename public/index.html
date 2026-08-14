@@ -312,10 +312,12 @@
       </div>
       <ul id="manage-list" class="manage-list"></ul>
       <div class="modal-add-row">
-        <input type="text" id="manage-add-input" class="manage-add-input" placeholder="Add new name…"
-          onkeydown="if(event.key==='Enter'){addEntry();event.preventDefault();}">
+        <textarea id="manage-add-input" class="manage-add-input" rows="2"
+          placeholder="Add one name, or paste a list…"
+          onkeydown="if(event.key==='Enter'&&!event.shiftKey){addEntry();event.preventDefault();}"></textarea>
         <button type="button" class="manage-add-btn" onclick="addEntry()">Add</button>
       </div>
+      <p class="modal-add-hint">Enter to add · Paste a list (one per line) to add in bulk</p>
     </div>
   </div>
 
