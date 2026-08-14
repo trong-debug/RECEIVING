@@ -81,6 +81,7 @@ function renderTable(rows) {
       <td>${r.id}</td>
       <td><strong>${esc(r.driver_name)}</strong></td>
       <td>${esc(r.site_name)}${r.address ? `<br><small style="color:#888">${esc(r.address)}</small>` : ''}</td>
+      <td>${esc(r.location) || ''}</td>
       <td style="white-space:nowrap">${formatDatetime(r.arrived_at)}</td>
       <td style="white-space:nowrap">${r.dispatch_time ? formatDatetime(r.dispatch_time) : ''}</td>
       <td>${esc(r.client_name) || ''}</td>
@@ -145,6 +146,27 @@ async function deleteRecord(id) {
   if (!confirm(`Delete record #${id}? This cannot be undone.`)) return;
   await fetch(`/api/deliveries/${id}`, { method: 'DELETE' });
   loadRecords();
+}
+
+async function manualSyncSheets() {
+  const btn = document.getElementById('btn-sync');
+  const original = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = 'Syncing…';
+  try {
+    const res = await fetch('/api/sync-to-sheets', { method: 'POST' });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Server error');
+    if (data.errors > 0) {
+      const failMsg = data.failed && data.failed.length ? ` (IDs: ${data.failed.join(', ')})` : '';
+      btn.textContent = `✓ ${data.synced} synced, ${data.errors} failed${failMsg}`;
+    } else {
+      btn.textContent = `✓ ${data.synced} records synced`;
+    }
+  } catch (err) {
+    btn.textContent = 'Error — ' + err.message;
+  }
+  setTimeout(() => { btn.textContent = original; btn.disabled = false; }, 4000);
 }
 
 async function clearAllRecords() {

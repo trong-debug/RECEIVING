@@ -1,15 +1,7 @@
-// ── Hold-to-repeat for +/- buttons ────────────────────────────────────────
+// ── Hold-to-repeat for temperature +/- buttons ────────────────────────────
 
 let holdTimer = null;
 let holdInterval = null;
-
-function startHold(type, delta, e) {
-  if (e && e.cancelable) e.preventDefault(); // prevent touch → mousedown double-fire
-  adjPallet(type, delta);
-  holdTimer = setTimeout(() => {
-    holdInterval = setInterval(() => adjPallet(type, delta), 80);
-  }, 450);
-}
 
 function stopHold() {
   clearTimeout(holdTimer);
@@ -18,33 +10,87 @@ function stopHold() {
   holdInterval = null;
 }
 
-// ── Pallet state ───────────────────────────────────────────────────────────
+// ── Location selection ────────────────────────────────────────────────────
 
-const palletCounts = { chep: 0, loscam: 0, plain: 0 };
-const palletDisp   = { chep: null, loscam: null, plain: null };
+const LOCATION_IDS = {
+  'Dock 8':       'loc-btn-dock8',
+  'Dock 9':       'loc-btn-dock9',
+  'Dock 10':      'loc-btn-dock10',
+  'Dock 11':      'loc-btn-dock11',
+  'BC Hardstand': 'loc-btn-hardstand'
+};
+let selectedLocation = null;
 
-function adjPallet(type, delta) {
-  palletCounts[type] = Math.max(0, palletCounts[type] + delta);
-  document.getElementById(type + '-count').textContent = palletCounts[type];
-  const row = document.getElementById(type + '-disp-row');
-  if (palletCounts[type] === 0) {
-    row.classList.add('inactive');
+function setLocation(loc) {
+  if (selectedLocation === loc) {
+    selectedLocation = null;
+    document.getElementById(LOCATION_IDS[loc]).classList.remove('active');
+    return;
+  }
+  for (const [l, id] of Object.entries(LOCATION_IDS)) {
+    document.getElementById(id).classList.toggle('active', l === loc);
+  }
+  selectedLocation = loc;
+}
+
+// ── Drop off toggle state ─────────────────────────────────────────────────
+
+const dropoffActive = { chep: false, loscam: false, plain: false, cartons: false };
+const palletDisp    = { chep: null, loscam: null, plain: null };
+const palletQty     = { chep: 0,    loscam: 0,    plain: 0    };
+
+function adjPalletQty(type, delta) {
+  palletQty[type] = Math.max(0, palletQty[type] + delta);
+  document.getElementById(type + '-qty-display').textContent = palletQty[type];
+}
+
+function startPalletHold(type, delta, e) {
+  if (e) e.preventDefault();
+  adjPalletQty(type, delta);
+  holdTimer = setTimeout(() => {
+    holdInterval = setInterval(() => adjPalletQty(type, delta), 80);
+  }, 400);
+}
+
+function toggleDropoff(type) {
+  const wasActive = dropoffActive[type];
+
+  // Deactivate all first
+  for (const t of ['chep', 'loscam', 'plain', 'cartons']) {
+    if (dropoffActive[t]) {
+      dropoffActive[t] = false;
+      document.getElementById('dropoff-btn-' + t).classList.remove('active');
+      document.getElementById('dropoff-panel-' + t).classList.add('hidden');
+      _resetDropoffPanel(t);
+    }
+  }
+
+  // Activate clicked one only if it wasn't already active
+  if (!wasActive) {
+    dropoffActive[type] = true;
+    document.getElementById('dropoff-btn-' + type).classList.add('active');
+    document.getElementById('dropoff-panel-' + type).classList.remove('hidden');
+  }
+}
+
+function _resetDropoffPanel(type) {
+  if (type === 'chep' || type === 'loscam' || type === 'plain') {
     palletDisp[type] = null;
-    row.querySelectorAll('.disp-btn').forEach(b => b.classList.remove('selected'));
+    palletQty[type]  = 0;
+    document.getElementById(type + '-qty-display').textContent = '0';
+    document.getElementById(type + '-disp-row').querySelectorAll('.disp-btn').forEach(b => b.classList.remove('selected'));
     if (type === 'chep') {
       document.getElementById('chep-docket-field').classList.add('hidden');
       document.getElementById('chep-docket').value = '';
     }
-  } else {
-    row.classList.remove('inactive');
+  } else if (type === 'cartons') {
+    document.getElementById('num-cartons').value = '';
   }
 }
 
 function setPalletDisp(type, disp) {
-  if (palletCounts[type] === 0) return;
   palletDisp[type] = disp;
-  const row = document.getElementById(type + '-disp-row');
-  row.querySelectorAll('.disp-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById(type + '-disp-row').querySelectorAll('.disp-btn').forEach(b => b.classList.remove('selected'));
   document.getElementById(type + '-' + disp).classList.add('selected');
   if (type === 'chep') {
     const docketField = document.getElementById('chep-docket-field');
@@ -63,21 +109,79 @@ async function openManage(type, label) {
   document.getElementById('manage-title').textContent = 'Edit ' + label;
   await refreshManageList();
   document.getElementById('manage-modal').classList.remove('hidden');
+  // Auto-submit when a multiline list is pasted
+  const input = document.getElementById('manage-add-input');
+  input.onpaste = e => {
+    const text = (e.clipboardData || window.clipboardData).getData('text');
+    if (text.includes('\n') || (text.match(/,/g) || []).length > 1) {
+      e.preventDefault();
+      input.value = text;
+      setTimeout(addEntry, 0);
+    }
+  };
 }
 
 async function refreshManageList() {
   const type = currentManageType;
   const items = await fetch('/api/' + type).then(r => r.json());
-  const names = items.map(i => typeof i === 'string' ? i : i.name);
+  const names = items.map(i => typeof i === 'string' ? i : i.name).sort((a, b) => a.localeCompare(b));
   const ul = document.getElementById('manage-list');
   ul.innerHTML = names.length
     ? names.map(n => `<li class="manage-item"><span>${n}</span><button type="button" class="btn-delete-entry" onclick="deleteEntry('${type}','${n.replace(/'/g,"\\'")}')">✕</button></li>`).join('')
     : '<li class="manage-empty">No entries saved yet.</li>';
 }
 
+function sortSelect(sel) {
+  const saved = sel.value;
+  const newOpt = sel.querySelector('option[value="__new__"]');
+  const blank  = sel.querySelector('option[value=""]');
+  const opts   = [...sel.options].filter(o => o.value !== '__new__' && o.value !== '');
+  opts.sort((a, b) => a.text.localeCompare(b.text));
+  opts.forEach(o => sel.insertBefore(o, newOpt || null));
+  sel.value = saved;
+}
+
+async function addEntry() {
+  const input = document.getElementById('manage-add-input');
+  const raw   = input.value;
+  // Split by newline or comma to support pasted lists
+  const names = raw.split(/[\n,]+/).map(n => n.trim()).filter(Boolean);
+  if (!names.length) return;
+
+  const sel    = document.getElementById(selectIdMap[currentManageType]);
+  const newOpt = sel ? sel.querySelector('option[value="__new__"]') : null;
+
+  for (const name of names) {
+    await fetch('/api/' + currentManageType, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name })
+    });
+    if (sel && ![...sel.options].some(o => o.value === name)) {
+      const opt = document.createElement('option');
+      opt.value = name; opt.textContent = name;
+      sel.insertBefore(opt, newOpt || null);
+    }
+  }
+
+  if (sel) sortSelect(sel);
+  input.value = '';
+  input.focus();
+  await refreshManageList();
+}
+
+async function clearAllEntries() {
+  if (!confirm('Clear all entries from this list? This cannot be undone.')) return;
+  await fetch('/api/' + currentManageType, { method: 'DELETE' });
+  const sel = document.getElementById(selectIdMap[currentManageType]);
+  if (sel) {
+    [...sel.options].forEach(o => { if (o.value !== '' && o.value !== '__new__') sel.removeChild(o); });
+  }
+  await refreshManageList();
+}
+
 async function deleteEntry(type, name) {
   await fetch('/api/' + type + '/' + encodeURIComponent(name), { method: 'DELETE' });
-  // Remove from the select dropdown too
   const sel = document.getElementById(selectIdMap[type]);
   const opt = [...sel.options].find(o => o.value === name);
   if (opt) sel.removeChild(opt);
@@ -92,14 +196,15 @@ function closeManage(e) {
 // ── Dispatch time offset input ─────────────────────────────────────────────
 
 function updateDispatchFromOffset() {
-  const arrivedVal = document.getElementById('arrived-at').value;
-  const mins = parseInt(document.getElementById('dispatch-offset').value);
-  if (!arrivedVal || isNaN(mins) || mins < 0) return;
-  const base = new Date(arrivedVal);
+  const dateVal = document.getElementById('arrival-date').value;
+  const timeVal = document.getElementById('arrived-at').value;
+  const mins    = parseInt(document.getElementById('dispatch-offset').value);
+  if (!dateVal || !timeVal || isNaN(mins) || mins < 0) return;
+  const base = new Date(`${dateVal}T${timeVal}`);
   base.setMinutes(base.getMinutes() + mins);
   const pad = n => String(n).padStart(2, '0');
   document.getElementById('dispatch-time').value =
-    `${base.getFullYear()}-${pad(base.getMonth()+1)}-${pad(base.getDate())}T${pad(base.getHours())}:${pad(base.getMinutes())}`;
+    `${pad(base.getHours())}:${pad(base.getMinutes())}`;
 }
 
 // ── Direction selection ────────────────────────────────────────────────────
@@ -139,10 +244,16 @@ function startTempHold(delta, e) {
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
-function localDatetimeValue() {
+function localDateValue() {
   const now = new Date();
   const pad = n => String(n).padStart(2, '0');
-  return `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
+  return `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
+}
+
+function localTimeValue() {
+  const now = new Date();
+  const pad = n => String(n).padStart(2, '0');
+  return `${pad(now.getHours())}:${pad(now.getMinutes())}`;
 }
 
 function show(el) { el.classList.remove('hidden'); }
@@ -150,7 +261,8 @@ function hide(el) { el.classList.add('hidden'); }
 
 // ── Bootstrap ─────────────────────────────────────────────────────────────
 
-document.getElementById('arrived-at').value = localDatetimeValue();
+document.getElementById('arrival-date').value = localDateValue();
+document.getElementById('arrived-at').value    = localTimeValue();
 
 async function loadDropdowns() {
   const [drivers, sites, clients, transports, recipients] = await Promise.all([
@@ -165,25 +277,21 @@ async function loadDropdowns() {
   drivers.forEach(name => {
     if (name === 'Add New Driver...') return;
     const opt = document.createElement('option');
-    opt.value = name;
-    opt.textContent = name;
+    opt.value = name; opt.textContent = name;
     driverSel.appendChild(opt);
   });
   const addDriverOpt = document.createElement('option');
-  addDriverOpt.value = '__new__';
-  addDriverOpt.textContent = '+ Add new driver…';
+  addDriverOpt.value = '__new__'; addDriverOpt.textContent = '+ Add new driver…';
   driverSel.appendChild(addDriverOpt);
 
   const siteSel = document.getElementById('site-select');
   sites.forEach(({ name }) => {
     const opt = document.createElement('option');
-    opt.value = name;
-    opt.textContent = name;
+    opt.value = name; opt.textContent = name;
     siteSel.appendChild(opt);
   });
   const addSiteOpt = document.createElement('option');
-  addSiteOpt.value = '__new__';
-  addSiteOpt.textContent = '+ Add new site…';
+  addSiteOpt.value = '__new__'; addSiteOpt.textContent = '+ Add new site…';
   siteSel.appendChild(addSiteOpt);
 
   const clientSel = document.getElementById('client-select');
@@ -193,8 +301,7 @@ async function loadDropdowns() {
     clientSel.appendChild(opt);
   });
   const addClientOpt = document.createElement('option');
-  addClientOpt.value = '__new__';
-  addClientOpt.textContent = '+ Add new client…';
+  addClientOpt.value = '__new__'; addClientOpt.textContent = '+ Add new client…';
   clientSel.appendChild(addClientOpt);
 
   const transportSel = document.getElementById('transport-select');
@@ -204,8 +311,7 @@ async function loadDropdowns() {
     transportSel.appendChild(opt);
   });
   const addTransportOpt = document.createElement('option');
-  addTransportOpt.value = '__new__';
-  addTransportOpt.textContent = '+ Add new carrier…';
+  addTransportOpt.value = '__new__'; addTransportOpt.textContent = '+ Add new carrier…';
   transportSel.appendChild(addTransportOpt);
 
   const recipientSel = document.getElementById('recipient-select');
@@ -215,11 +321,9 @@ async function loadDropdowns() {
     recipientSel.appendChild(opt);
   });
   const addRecipientOpt = document.createElement('option');
-  addRecipientOpt.value = '__new__';
-  addRecipientOpt.textContent = '+ Add new recipient…';
+  addRecipientOpt.value = '__new__'; addRecipientOpt.textContent = '+ Add new recipient…';
   recipientSel.appendChild(addRecipientOpt);
 
-  // Pre-fill address when site selected
   const siteMap = {};
   sites.forEach(s => { if (s.address) siteMap[s.name] = s.address; });
   siteSel.addEventListener('change', () => {
@@ -264,19 +368,28 @@ document.getElementById('delivery-form').addEventListener('submit', async e => {
     ? document.getElementById('new-site').value.trim()
     : siteSel;
 
-  const arrived_at = document.getElementById('arrived-at').value;
+  const arrival_date = document.getElementById('arrival-date').value;
+  const arrival_time = document.getElementById('arrived-at').value;
+  const arrived_at   = arrival_date && arrival_time ? `${arrival_date}T${arrival_time}` : '';
 
-  // Validation
-  if (!driver_name) { showError('Please select or enter your name.'); return; }
-  if (!site_name)   { showError('Please select or enter a site name.'); return; }
-  if (!arrived_at)  { showError('Please enter the arrival time.'); return; }
+  if (!driver_name)  { showError('Please select or enter your name.'); return; }
+  if (!site_name)    { showError('Please select or enter a site name.'); return; }
+  if (!arrival_date) { showError('Please enter the arrival date.'); return; }
+  if (!arrival_time) { showError('Please enter the arrival time.'); return; }
   if (!selectedDirection) { showError('Please select Inbound or Outbound.'); return; }
 
+  const anyDropoff = Object.values(dropoffActive).some(Boolean);
+  if (!anyDropoff) { showError('Please select a drop off type — CHEPS, LOSCAM, PLAIN or CARTONS.'); return; }
+
   for (const type of ['chep', 'loscam', 'plain']) {
-    if (palletCounts[type] > 0 && !palletDisp[type]) {
-      showError(`Please select Exchanged or Transfer for ${type.toUpperCase()} pallets.`);
-      return;
+    if (dropoffActive[type]) {
+      if (palletQty[type] <= 0) { showError(`Please select a quantity for ${type.toUpperCase()}.`); return; }
+      if (!palletDisp[type])    { showError(`Please select a disposition for ${type.toUpperCase()}.`); return; }
     }
+  }
+  if (dropoffActive.cartons) {
+    const qty = parseInt(document.getElementById('num-cartons').value) || 0;
+    if (qty <= 0) { showError('Please enter a carton quantity.'); return; }
   }
 
   const payload = {
@@ -284,24 +397,25 @@ document.getElementById('delivery-form').addEventListener('submit', async e => {
     site_name,
     address: document.getElementById('address').value.trim() || null,
     arrived_at,
-    chep_count:        palletCounts.chep,
-    chep_disposition:  palletDisp.chep,
-    loscam_count:      palletCounts.loscam,
-    loscam_disposition:palletDisp.loscam,
-    plain_count:       palletCounts.plain,
-    plain_disposition: palletDisp.plain,
-    num_cartons:  parseInt(document.getElementById('num-cartons').value)  || 0,
-    num_satchels: parseInt(document.getElementById('num-satchels').value) || 0,
+    chep_count:         dropoffActive.chep    ? palletQty.chep    : null,
+    chep_disposition:   dropoffActive.chep    ? palletDisp.chep   : null,
+    loscam_count:       dropoffActive.loscam  ? palletQty.loscam  : null,
+    loscam_disposition: dropoffActive.loscam  ? palletDisp.loscam : null,
+    plain_count:        dropoffActive.plain   ? palletQty.plain   : null,
+    plain_disposition:  dropoffActive.plain   ? palletDisp.plain  : null,
+    num_cartons:        dropoffActive.cartons ? Math.max(0, parseInt(document.getElementById('num-cartons').value) || 0) : null,
+    num_satchels: 0,
     client_name: (() => { const s = document.getElementById('client-select').value; return s === '__new__' ? document.getElementById('new-client').value.trim() || null : s || null; })(),
     direction: selectedDirection,
-    dispatch_time: document.getElementById('dispatch-time').value || null,
+    dispatch_time: (() => { const t = document.getElementById('dispatch-time').value; return t ? `${arrival_date}T${t}` : null; })(),
     transport_name: (() => { const s = document.getElementById('transport-select').value; return s === '__new__' ? document.getElementById('new-transport').value.trim() || null : s || null; })(),
     temperature: selectedTemp || null,
     temperature_value: selectedTemp ? String(tempValue) : null,
     chep_docket: document.getElementById('chep-docket').value.trim() || null,
     condition: document.querySelector('input[name="condition"]:checked').value,
     recipient_name: (() => { const s = document.getElementById('recipient-select').value; return s === '__new__' ? document.getElementById('new-recipient').value.trim() || null : s || null; })(),
-    notes: document.getElementById('notes').value.trim() || null
+    notes: document.getElementById('notes').value.trim() || null,
+    location: selectedLocation || null
   };
 
   const btn = document.getElementById('submit-btn');
@@ -321,13 +435,12 @@ document.getElementById('delivery-form').addEventListener('submit', async e => {
     if (!res.ok) throw new Error(data.error || 'Server error');
 
     const palletParts = [];
-    if (palletCounts.chep   > 0) palletParts.push(`${palletCounts.chep} CHEP (${palletDisp.chep})`);
-    if (palletCounts.loscam > 0) palletParts.push(`${palletCounts.loscam} LOSCAM (${palletDisp.loscam})`);
-    if (palletCounts.plain  > 0) palletParts.push(`${palletCounts.plain} Plain (${palletDisp.plain})`);
+    if (payload.chep_count   > 0) palletParts.push(`${payload.chep_count} CHEP (${palletDisp.chep})`);
+    if (payload.loscam_count > 0) palletParts.push(`${payload.loscam_count} LOSCAM (${palletDisp.loscam})`);
+    if (payload.plain_count  > 0) palletParts.push(`${payload.plain_count} Plain (${palletDisp.plain})`);
     const stockParts = [];
-    if (palletParts.length)      stockParts.push(palletParts.join(', '));
-    if (payload.num_cartons)     stockParts.push(`${payload.num_cartons} carton${payload.num_cartons !== 1 ? 's' : ''}`);
-    if (payload.num_satchels)    stockParts.push(`${payload.num_satchels} satchel${payload.num_satchels !== 1 ? 's' : ''}`);
+    if (palletParts.length)       stockParts.push(palletParts.join(', '));
+    if (payload.num_cartons)      stockParts.push(`${payload.num_cartons} carton${payload.num_cartons !== 1 ? 's' : ''}`);
 
     document.getElementById('success-msg').textContent =
       `${driver_name} → ${site_name} at ${formatDatetime(arrived_at)}` +
@@ -361,7 +474,8 @@ function resetForm() {
   hide(document.getElementById('success-banner'));
   show(document.getElementById('delivery-form'));
   document.getElementById('delivery-form').reset();
-  document.getElementById('arrived-at').value = localDatetimeValue();
+  document.getElementById('arrival-date').value = localDateValue();
+  document.getElementById('arrived-at').value    = localTimeValue();
   hide(document.getElementById('new-driver-field'));
   hide(document.getElementById('new-site-field'));
   hide(document.getElementById('new-client-field'));
@@ -371,16 +485,25 @@ function resetForm() {
   document.getElementById('dispatch-time').value = '';
   hide(document.getElementById('new-transport-field'));
   hide(document.getElementById('new-recipient-field'));
+
+  for (const type of ['chep', 'loscam', 'plain', 'cartons']) {
+    dropoffActive[type] = false;
+    document.getElementById('dropoff-btn-' + type).classList.remove('active');
+    document.getElementById('dropoff-panel-' + type).classList.add('hidden');
+  }
   for (const type of ['chep', 'loscam', 'plain']) {
-    palletCounts[type] = 0;
-    palletDisp[type]   = null;
-    document.getElementById(type + '-count').textContent = '0';
-    const row = document.getElementById(type + '-disp-row');
-    row.classList.add('inactive');
-    row.querySelectorAll('.disp-btn').forEach(b => b.classList.remove('selected'));
+    palletDisp[type] = null;
+    palletQty[type]  = 0;
+    document.getElementById(type + '-qty-display').textContent = '0';
+    document.getElementById(type + '-disp-row').querySelectorAll('.disp-btn').forEach(b => b.classList.remove('selected'));
   }
   document.getElementById('chep-docket-field').classList.add('hidden');
   document.getElementById('chep-docket').value = '';
+  document.getElementById('num-cartons').value = '';
+
+  selectedLocation = null;
+  for (const id of Object.values(LOCATION_IDS)) document.getElementById(id).classList.remove('active');
+
   selectedTemp = null;
   tempValue = 0;
   document.querySelectorAll('#temp-btn-row .disp-btn').forEach(b => b.classList.remove('selected'));

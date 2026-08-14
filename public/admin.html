@@ -45,6 +45,7 @@
         <button class="btn-primary" onclick="loadRecords()">Search</button>
         <button class="btn-secondary" onclick="clearFilters()">Clear</button>
         <button class="btn-export" onclick="exportCSV()">Export CSV</button>
+        <button class="btn-sync" id="btn-sync" onclick="manualSyncSheets()">Sync to Sheets</button>
         <button class="btn-danger" onclick="clearAllRecords()">Clear All Records</button>
       </div>
     </section>
@@ -62,6 +63,7 @@
               <th>#</th>
               <th>Driver</th>
               <th>Site</th>
+              <th>Location</th>
               <th>Arrived</th>
               <th>Dispatch After</th>
               <th>Client</th>

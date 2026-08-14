@@ -2,6 +2,17 @@ const express = require('express');
 const path = require('path');
 const db = require('./db');
 
+function toSheetsPayload(row) {
+  const arrivedAt   = row.arrived_at   || '';
+  const dispatchAt  = row.dispatch_time || '';
+  return {
+    ...row,
+    arrival_date:  arrivedAt.slice(0, 10),
+    arrived_at:    arrivedAt.includes('T') ? arrivedAt.slice(11, 16) : arrivedAt,
+    dispatch_time: dispatchAt ? (dispatchAt.includes('T') ? dispatchAt.slice(11, 16) : dispatchAt) : null
+  };
+}
+
 async function syncToSheets(delivery) {
   const url = process.env.GOOGLE_SHEET_WEBHOOK;
   if (!url) { console.log('Sheets sync: no webhook URL set'); return; }
@@ -10,7 +21,7 @@ async function syncToSheets(delivery) {
     const res = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(delivery),
+      body: JSON.stringify(toSheetsPayload(delivery)),
       signal: AbortSignal.timeout(10000)
     });
     const text = await res.text();
@@ -37,7 +48,7 @@ app.post('/api/deliveries', (req, res) => {
     plain_count, plain_disposition,
     client_name, direction, dispatch_time,
     transport_name, temperature, temperature_value,
-    chep_docket,
+    chep_docket, location,
     condition, recipient_name, notes
   } = req.body;
 
@@ -45,9 +56,9 @@ app.post('/api/deliveries', (req, res) => {
     return res.status(400).json({ error: 'driver_name, site_name, and arrived_at are required' });
   }
 
-  const chep   = Math.max(0, parseInt(chep_count)   || 0);
-  const loscam = Math.max(0, parseInt(loscam_count) || 0);
-  const plain  = Math.max(0, parseInt(plain_count)  || 0);
+  const chep   = chep_count   != null ? Math.max(0, parseInt(chep_count)   || 0) : null;
+  const loscam = loscam_count != null ? Math.max(0, parseInt(loscam_count) || 0) : null;
+  const plain  = plain_count  != null ? Math.max(0, parseInt(plain_count)  || 0) : null;
 
   const stmt = db.prepare(`
     INSERT INTO deliveries
@@ -58,7 +69,7 @@ app.post('/api/deliveries', (req, res) => {
        plain_count, plain_disposition,
        client_name, direction, dispatch_time,
        transport_name, temperature, temperature_value,
-       chep_docket,
+       chep_docket, location,
        condition, recipient_name, notes)
     VALUES
       (@driver_name, @site_name, @address, @arrived_at,
@@ -68,7 +79,7 @@ app.post('/api/deliveries', (req, res) => {
        @plain_count, @plain_disposition,
        @client_name, @direction, @dispatch_time,
        @transport_name, @temperature, @temperature_value,
-       @chep_docket,
+       @chep_docket, @location,
        @condition, @recipient_name, @notes)
   `);
 
@@ -76,8 +87,8 @@ app.post('/api/deliveries', (req, res) => {
     driver_name, site_name,
     address: address || null,
     arrived_at,
-    num_pallets: chep + loscam + plain,
-    num_cartons: Math.max(0, parseInt(num_cartons) || 0),
+    num_pallets: (chep || 0) + (loscam || 0) + (plain || 0),
+    num_cartons: num_cartons != null ? Math.max(0, parseInt(num_cartons) || 0) : null,
     num_satchels: Math.max(0, parseInt(num_satchels) || 0),
     chep_count: chep,
     chep_disposition: chep > 0 ? (chep_disposition || null) : null,
@@ -92,6 +103,7 @@ app.post('/api/deliveries', (req, res) => {
     temperature: temperature || null,
     temperature_value: temperature_value || null,
     chep_docket: chep_docket || null,
+    location: location || null,
     condition: condition || 'Good',
     recipient_name: recipient_name || null,
     notes: notes || null
@@ -182,6 +194,47 @@ app.delete('/api/deliveries', (_req, res) => {
   res.json({ ok: true });
 });
 
+app.post('/api/sync-to-sheets', async (_req, res) => {
+  try {
+    const url = process.env.GOOGLE_SHEET_WEBHOOK;
+    if (!url) return res.status(400).json({ error: 'No Google Sheet webhook URL configured' });
+
+    const rows = db.prepare('SELECT * FROM deliveries ORDER BY id ASC').all();
+    let synced = 0, errors = 0;
+    const failed = [];
+
+    for (const row of rows) {
+      try {
+        const r = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(toSheetsPayload(row)),
+          signal: AbortSignal.timeout(15000)
+        });
+        if (r.ok) {
+          synced++;
+        } else {
+          const text = await r.text().catch(() => '');
+          console.error(`Manual sync: record #${row.id} failed status=${r.status} body=${text.slice(0, 200)}`);
+          failed.push(row.id);
+          errors++;
+        }
+      } catch (err) {
+        console.error(`Manual sync: record #${row.id} error — ${err.message}`);
+        failed.push(row.id);
+        errors++;
+      }
+      await new Promise(resolve => setTimeout(resolve, 300));
+    }
+
+    console.log(`Manual sync: ${synced} synced, ${errors} errors out of ${rows.length}${failed.length ? ' — failed IDs: ' + failed.join(',') : ''}`);
+    res.json({ synced, errors, total: rows.length, failed });
+  } catch (err) {
+    console.error('Manual sync fatal error:', err);
+    res.status(500).json({ error: err.message || 'Internal server error' });
+  }
+});
+
 // ── Drivers & Sites (for dropdowns) ─────────────────────────────────────────
 
 app.get('/api/drivers', (_req, res) => {
@@ -204,6 +257,18 @@ app.get('/api/recipients', (_req, res) => {
   res.json(db.prepare('SELECT name FROM recipients ORDER BY name').all().map(r => r.name));
 });
 
+app.post('/api/drivers',    (req, res) => { const n = (req.body.name || '').trim(); if (!n) return res.status(400).json({ error: 'name required' }); db.prepare('INSERT OR IGNORE INTO drivers    (name)          VALUES (?)').run(n); res.json({ ok: true }); });
+app.post('/api/sites',      (req, res) => { const n = (req.body.name || '').trim(); if (!n) return res.status(400).json({ error: 'name required' }); db.prepare('INSERT OR IGNORE INTO sites      (name, address) VALUES (?, NULL)').run(n); res.json({ ok: true }); });
+app.post('/api/clients',    (req, res) => { const n = (req.body.name || '').trim(); if (!n) return res.status(400).json({ error: 'name required' }); db.prepare('INSERT OR IGNORE INTO clients    (name)          VALUES (?)').run(n); res.json({ ok: true }); });
+app.post('/api/transports', (req, res) => { const n = (req.body.name || '').trim(); if (!n) return res.status(400).json({ error: 'name required' }); db.prepare('INSERT OR IGNORE INTO transports (name)          VALUES (?)').run(n); res.json({ ok: true }); });
+app.post('/api/recipients', (req, res) => { const n = (req.body.name || '').trim(); if (!n) return res.status(400).json({ error: 'name required' }); db.prepare('INSERT OR IGNORE INTO recipients (name)          VALUES (?)').run(n); res.json({ ok: true }); });
+
+app.delete('/api/drivers',    (_req, res) => { db.prepare('DELETE FROM drivers').run();    res.json({ ok: true }); });
+app.delete('/api/sites',      (_req, res) => { db.prepare('DELETE FROM sites').run();      res.json({ ok: true }); });
+app.delete('/api/clients',    (_req, res) => { db.prepare('DELETE FROM clients').run();    res.json({ ok: true }); });
+app.delete('/api/transports', (_req, res) => { db.prepare('DELETE FROM transports').run(); res.json({ ok: true }); });
+app.delete('/api/recipients', (_req, res) => { db.prepare('DELETE FROM recipients').run(); res.json({ ok: true }); });
+
 app.delete('/api/clients/:name',    (req, res) => { db.prepare('DELETE FROM clients    WHERE name = ?').run(decodeURIComponent(req.params.name)); res.json({ ok: true }); });
 app.delete('/api/drivers/:name',    (req, res) => { db.prepare('DELETE FROM drivers    WHERE name = ?').run(decodeURIComponent(req.params.name)); res.json({ ok: true }); });
 app.delete('/api/sites/:name',      (req, res) => { db.prepare('DELETE FROM sites      WHERE name = ?').run(decodeURIComponent(req.params.name)); res.json({ ok: true }); });
@@ -216,6 +281,49 @@ app.get('/health', (_req, res) => res.json({ status: 'ok' }));
 
 // ── Serve SPA pages ──────────────────────────────────────────────────────────
 
-app.get('/admin', (_req, res) => res.sendFile(path.join(__dirname, 'public', 'admin.html')));
+function requireAuth(req, res, next) {
+  const user = process.env.ADMIN_USER;
+  const pass = process.env.ADMIN_PASS;
+  if (!user || !pass) return next(); // if env vars not set, allow through (dev mode)
 
-app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
+  const auth = req.headers.authorization;
+  if (auth && auth.startsWith('Basic ')) {
+    const [u, p] = Buffer.from(auth.slice(6), 'base64').toString().split(':');
+    if (u === user && p === pass) return next();
+  }
+  res.set('WWW-Authenticate', 'Basic realm="Be Cool Admin"');
+  res.status(401).send('Unauthorised');
+}
+
+app.get('/admin', requireAuth, (_req, res) => res.sendFile(path.join(__dirname, 'public', 'admin.html')));
+
+async function syncSequenceWithSheets() {
+  const url = process.env.GOOGLE_SHEET_WEBHOOK;
+  if (!url) { console.log('Sequence sync: no webhook URL set, skipping'); return; }
+  try {
+    const res = await fetch(url + '?action=maxId', { signal: AbortSignal.timeout(8000) });
+    const { maxId } = await res.json();
+    if (maxId > 0) {
+      const row = db.prepare("SELECT seq FROM sqlite_sequence WHERE name = 'deliveries'").get();
+      const currentSeq = row ? row.seq : 0;
+      if (maxId > currentSeq) {
+        if (row) {
+          db.prepare("UPDATE sqlite_sequence SET seq = ? WHERE name = 'deliveries'").run(maxId);
+        } else {
+          db.prepare("INSERT INTO sqlite_sequence (name, seq) VALUES ('deliveries', ?)").run(maxId);
+        }
+        console.log(`Sequence sync: bumped SQLite seq from ${currentSeq} to ${maxId}`);
+      } else {
+        console.log(`Sequence sync: SQLite seq (${currentSeq}) already ahead of Sheets max (${maxId}), no change`);
+      }
+    } else {
+      console.log('Sequence sync: Sheets has no records, keeping SQLite seq as-is');
+    }
+  } catch (err) {
+    console.log('Sequence sync: skipped —', err.message);
+  }
+}
+
+syncSequenceWithSheets().then(() => {
+  app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
+});
