@@ -56,9 +56,9 @@ app.post('/api/deliveries', (req, res) => {
     return res.status(400).json({ error: 'driver_name, site_name, and arrived_at are required' });
   }
 
-  const chep   = Math.max(0, parseInt(chep_count)   || 0);
-  const loscam = Math.max(0, parseInt(loscam_count) || 0);
-  const plain  = Math.max(0, parseInt(plain_count)  || 0);
+  const chep   = chep_count   != null ? Math.max(0, parseInt(chep_count)   || 0) : null;
+  const loscam = loscam_count != null ? Math.max(0, parseInt(loscam_count) || 0) : null;
+  const plain  = plain_count  != null ? Math.max(0, parseInt(plain_count)  || 0) : null;
 
   const stmt = db.prepare(`
     INSERT INTO deliveries
@@ -87,8 +87,8 @@ app.post('/api/deliveries', (req, res) => {
     driver_name, site_name,
     address: address || null,
     arrived_at,
-    num_pallets: chep + loscam + plain,
-    num_cartons: Math.max(0, parseInt(num_cartons) || 0),
+    num_pallets: (chep || 0) + (loscam || 0) + (plain || 0),
+    num_cartons: num_cartons != null ? Math.max(0, parseInt(num_cartons) || 0) : null,
     num_satchels: Math.max(0, parseInt(num_satchels) || 0),
     chep_count: chep,
     chep_disposition: chep > 0 ? (chep_disposition || null) : null,
