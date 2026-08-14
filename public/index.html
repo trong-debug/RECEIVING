@@ -308,7 +308,10 @@
     <div class="modal-box">
       <div class="modal-header">
         <h3 id="manage-title">Edit List</h3>
-        <button type="button" class="modal-close" onclick="closeManage()">×</button>
+        <div class="modal-header-actions">
+          <button type="button" class="btn-clear-all" onclick="clearAllEntries()">Clear All</button>
+          <button type="button" class="modal-close" onclick="closeManage()">×</button>
+        </div>
       </div>
       <ul id="manage-list" class="manage-list"></ul>
       <div class="modal-add-row">

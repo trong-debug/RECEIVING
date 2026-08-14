@@ -170,6 +170,16 @@ async function addEntry() {
   await refreshManageList();
 }
 
+async function clearAllEntries() {
+  if (!confirm('Clear all entries from this list? This cannot be undone.')) return;
+  await fetch('/api/' + currentManageType, { method: 'DELETE' });
+  const sel = document.getElementById(selectIdMap[currentManageType]);
+  if (sel) {
+    [...sel.options].forEach(o => { if (o.value !== '' && o.value !== '__new__') sel.removeChild(o); });
+  }
+  await refreshManageList();
+}
+
 async function deleteEntry(type, name) {
   await fetch('/api/' + type + '/' + encodeURIComponent(name), { method: 'DELETE' });
   const sel = document.getElementById(selectIdMap[type]);

@@ -263,6 +263,12 @@ app.post('/api/clients',    (req, res) => { const n = (req.body.name || '').trim
 app.post('/api/transports', (req, res) => { const n = (req.body.name || '').trim(); if (!n) return res.status(400).json({ error: 'name required' }); db.prepare('INSERT OR IGNORE INTO transports (name)          VALUES (?)').run(n); res.json({ ok: true }); });
 app.post('/api/recipients', (req, res) => { const n = (req.body.name || '').trim(); if (!n) return res.status(400).json({ error: 'name required' }); db.prepare('INSERT OR IGNORE INTO recipients (name)          VALUES (?)').run(n); res.json({ ok: true }); });
 
+app.delete('/api/drivers',    (_req, res) => { db.prepare('DELETE FROM drivers').run();    res.json({ ok: true }); });
+app.delete('/api/sites',      (_req, res) => { db.prepare('DELETE FROM sites').run();      res.json({ ok: true }); });
+app.delete('/api/clients',    (_req, res) => { db.prepare('DELETE FROM clients').run();    res.json({ ok: true }); });
+app.delete('/api/transports', (_req, res) => { db.prepare('DELETE FROM transports').run(); res.json({ ok: true }); });
+app.delete('/api/recipients', (_req, res) => { db.prepare('DELETE FROM recipients').run(); res.json({ ok: true }); });
+
 app.delete('/api/clients/:name',    (req, res) => { db.prepare('DELETE FROM clients    WHERE name = ?').run(decodeURIComponent(req.params.name)); res.json({ ok: true }); });
 app.delete('/api/drivers/:name',    (req, res) => { db.prepare('DELETE FROM drivers    WHERE name = ?').run(decodeURIComponent(req.params.name)); res.json({ ok: true }); });
 app.delete('/api/sites/:name',      (req, res) => { db.prepare('DELETE FROM sites      WHERE name = ?').run(decodeURIComponent(req.params.name)); res.json({ ok: true }); });
