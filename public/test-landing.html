@@ -7,199 +7,380 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+    /* ── Tokens — light ── */
     :root {
-      --bg: #0f1117;
-      --card: #1a1d27;
-      --border: #2a2d3a;
-      --text: #e8eaf0;
-      --text-muted: #8b8fa8;
-      --accent: #3b82f6;
+      --bg:            #f0f4f8;
+      --bg-glow:       rgba(14, 165, 233, 0.06);
+      --surface:       #ffffff;
+      --surface-hover: #f5f9ff;
+      --border:        #d1dde9;
+      --border-hover:  #0ea5e9;
+      --text:          #0f1923;
+      --muted:         #5a7490;
+      --accent:        #0284c7;
+      --accent-glow:   rgba(2, 132, 199, 0.15);
+      --amber:         #d97706;
+      --amber-surface: #fffbeb;
+      --amber-border:  #fcd34d;
+      --amber-glow:    rgba(217, 119, 6, 0.10);
+      --dot:           rgba(14, 165, 233, 0.12);
+      --shadow:        0 2px 16px rgba(15, 25, 35, 0.08);
+      --shadow-hover:  0 6px 28px rgba(15, 25, 35, 0.14);
+    }
+
+    /* ── Tokens — dark (system) ── */
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --bg:            #080e18;
+        --bg-glow:       rgba(14, 165, 233, 0.07);
+        --surface:       #101827;
+        --surface-hover: #14203a;
+        --border:        #1a2b42;
+        --border-hover:  #0ea5e9;
+        --text:          #edf2f8;
+        --muted:         #5a7a9e;
+        --accent:        #0ea5e9;
+        --accent-glow:   rgba(14, 165, 233, 0.18);
+        --amber:         #f59e0b;
+        --amber-surface: #111008;
+        --amber-border:  #78500a;
+        --amber-glow:    rgba(245, 158, 11, 0.12);
+        --dot:           rgba(14, 165, 233, 0.07);
+        --shadow:        0 2px 16px rgba(0, 0, 0, 0.4);
+        --shadow-hover:  0 6px 32px rgba(0, 0, 0, 0.55);
+      }
+    }
+
+    /* ── Tokens — explicit dark ── */
+    :root[data-theme="dark"] {
+      --bg:            #080e18;
+      --bg-glow:       rgba(14, 165, 233, 0.07);
+      --surface:       #101827;
+      --surface-hover: #14203a;
+      --border:        #1a2b42;
+      --border-hover:  #0ea5e9;
+      --text:          #edf2f8;
+      --muted:         #5a7a9e;
+      --accent:        #0ea5e9;
+      --accent-glow:   rgba(14, 165, 233, 0.18);
+      --amber:         #f59e0b;
+      --amber-surface: #111008;
+      --amber-border:  #78500a;
+      --amber-glow:    rgba(245, 158, 11, 0.12);
+      --dot:           rgba(14, 165, 233, 0.07);
+      --shadow:        0 2px 16px rgba(0, 0, 0, 0.4);
+      --shadow-hover:  0 6px 32px rgba(0, 0, 0, 0.55);
+    }
+
+    html, body {
+      height: 100%;
     }
 
     body {
       background: var(--bg);
       color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
       min-height: 100vh;
-      display: flex;
-      flex-direction: column;
+      /* subtle dot grid */
+      background-image: radial-gradient(var(--dot) 1px, transparent 1px);
+      background-size: 28px 28px;
     }
 
     /* ── Views ── */
-    .view { display: none; flex-direction: column; min-height: 100vh; }
+    .view {
+      display: none;
+      flex-direction: column;
+      min-height: 100vh;
+    }
     .view.active { display: flex; }
+
+    /* ── Polar glow backdrop ── */
+    .glow-bg {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(ellipse 70% 50% at 50% 20%, var(--bg-glow), transparent 70%);
+      z-index: 0;
+    }
+
+    /* ── Layout ── */
+    .inner {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 420px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
 
     /* ── Header ── */
     header {
-      padding: 40px 24px 24px;
+      position: relative;
+      z-index: 1;
+      padding: 52px 20px 32px;
       text-align: center;
     }
-    .logo {
-      font-size: 13px;
+
+    .wordmark {
+      display: inline-block;
+      font-size: 11px;
       font-weight: 700;
-      letter-spacing: .12em;
+      letter-spacing: .18em;
       text-transform: uppercase;
       color: var(--accent);
-      margin-bottom: 10px;
-    }
-    header h1 {
-      font-size: 26px;
-      font-weight: 800;
-      color: var(--text);
-      margin-bottom: 6px;
-    }
-    header p {
-      font-size: 14px;
-      color: var(--text-muted);
+      margin-bottom: 18px;
     }
 
-    /* ── Landing buttons ── */
-    .landing-main {
+    header h1 {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--text);
+      letter-spacing: -.02em;
+      line-height: 1.15;
+      text-wrap: balance;
+      margin-bottom: 8px;
+    }
+
+    header p {
+      font-size: 14px;
+      color: var(--muted);
+      letter-spacing: .01em;
+    }
+
+    /* ── Button cards ── */
+    main.landing-main {
+      position: relative;
+      z-index: 1;
       flex: 1;
       display: flex;
       flex-direction: column;
-      gap: 16px;
-      padding: 16px 24px 40px;
-      max-width: 480px;
+      gap: 14px;
+      padding: 0 20px 48px;
+      max-width: 420px;
       width: 100%;
       margin: 0 auto;
     }
 
-    .big-btn {
-      display: flex;
+    .task-btn {
+      display: grid;
+      grid-template-columns: 52px 1fr 28px;
       align-items: center;
-      gap: 20px;
-      padding: 28px 24px;
-      background: var(--card);
-      border: 2px solid var(--border);
-      border-radius: 16px;
+      gap: 16px;
+      padding: 24px 20px;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 18px;
       cursor: pointer;
       text-align: left;
       width: 100%;
-      transition: border-color .15s, background .15s;
       text-decoration: none;
       color: inherit;
-    }
-    .big-btn:hover, .big-btn:active {
-      border-color: var(--accent);
-      background: #1f2235;
-    }
-    .big-btn-icon {
-      font-size: 36px;
-      flex-shrink: 0;
-      width: 56px;
-      text-align: center;
-    }
-    .big-btn-text strong {
-      display: block;
-      font-size: 18px;
-      font-weight: 700;
-      color: var(--text);
-      margin-bottom: 4px;
-    }
-    .big-btn-text span {
-      font-size: 13px;
-      color: var(--text-muted);
-      line-height: 1.4;
-    }
-    .big-btn-arrow {
-      margin-left: auto;
-      font-size: 20px;
-      color: var(--text-muted);
-      flex-shrink: 0;
+      box-shadow: var(--shadow);
+      transition: border-color .18s, background .18s, box-shadow .18s, transform .12s;
+      -webkit-tap-highlight-color: transparent;
     }
 
-    /* ── Placeholder page ── */
-    .placeholder-main {
+    .task-btn:active {
+      transform: scale(0.977);
+    }
+
+    /* Blue — primary */
+    .task-btn.primary:hover,
+    .task-btn.primary:focus-visible {
+      border-color: var(--border-hover);
+      background: var(--surface-hover);
+      box-shadow: var(--shadow-hover), 0 0 0 4px var(--accent-glow);
+      outline: none;
+    }
+
+    /* Amber — secondary */
+    .task-btn.secondary {
+      background: var(--amber-surface);
+      border-color: var(--amber-border);
+    }
+    .task-btn.secondary:hover,
+    .task-btn.secondary:focus-visible {
+      border-color: var(--amber);
+      box-shadow: var(--shadow-hover), 0 0 0 4px var(--amber-glow);
+      outline: none;
+    }
+
+    .btn-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      flex-shrink: 0;
+    }
+    .primary .btn-icon  { background: var(--accent-glow); }
+    .secondary .btn-icon { background: var(--amber-glow); }
+
+    .btn-body strong {
+      display: block;
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -.01em;
+      margin-bottom: 4px;
+    }
+    .btn-body span {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .btn-arrow {
+      font-size: 22px;
+      color: var(--muted);
+      line-height: 1;
+      justify-self: end;
+    }
+    .primary .btn-arrow  { color: var(--accent); }
+    .secondary .btn-arrow { color: var(--amber); }
+
+    /* ── Placeholder view ── */
+    .placeholder-view {
+      position: relative;
+      z-index: 1;
       flex: 1;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 40px 24px;
       text-align: center;
-      gap: 16px;
+      padding: 40px 32px;
+      gap: 14px;
+      max-width: 420px;
+      width: 100%;
+      margin: 0 auto;
     }
-    .placeholder-icon { font-size: 64px; }
-    .placeholder-main h2 { font-size: 22px; font-weight: 700; }
-    .placeholder-main p { font-size: 14px; color: var(--text-muted); max-width: 280px; line-height: 1.6; }
+
+    .placeholder-icon {
+      font-size: 56px;
+      margin-bottom: 4px;
+    }
+
+    .placeholder-view h2 {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--text);
+      letter-spacing: -.02em;
+    }
+
+    .placeholder-view p {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.65;
+      max-width: 260px;
+    }
+
+    .chip {
+      display: inline-block;
+      background: var(--amber-glow);
+      color: var(--amber);
+      border: 1px solid var(--amber-border);
+      border-radius: 100px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      margin-bottom: 4px;
+    }
 
     .back-btn {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
+      gap: 7px;
       margin-top: 8px;
-      padding: 12px 24px;
-      background: var(--card);
-      border: 2px solid var(--border);
-      border-radius: 10px;
+      padding: 13px 24px;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
       color: var(--text);
       font-size: 14px;
       font-weight: 600;
       cursor: pointer;
-      transition: border-color .15s;
+      transition: border-color .15s, background .15s;
+      -webkit-tap-highlight-color: transparent;
     }
-    .back-btn:hover { border-color: var(--accent); }
+    .back-btn:hover { border-color: var(--border-hover); background: var(--surface-hover); }
+    .back-btn:active { transform: scale(0.97); }
 
+    /* ── Footer ── */
     footer {
-      padding: 20px;
+      position: relative;
+      z-index: 1;
+      padding: 0 20px 28px;
       text-align: center;
-      font-size: 12px;
-      color: var(--text-muted);
+      font-size: 11px;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--muted);
+      opacity: .6;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .task-btn, .back-btn { transition: none; }
+      .task-btn:active, .back-btn:active { transform: none; }
     }
   </style>
 </head>
 <body>
 
+  <div class="glow-bg"></div>
+
   <!-- ── Landing ── -->
   <div class="view active" id="view-landing">
     <header>
-      <div class="logo">Be Cool Couriers</div>
+      <div class="wordmark">Be Cool Couriers</div>
       <h1>What are you doing today?</h1>
-      <p>Select an option to get started</p>
+      <p>Select a task to get started</p>
     </header>
 
     <main class="landing-main">
 
-      <a href="/" class="big-btn">
-        <div class="big-btn-icon">🚚</div>
-        <div class="big-btn-text">
+      <a href="/" class="task-btn primary">
+        <div class="btn-icon">🚚</div>
+        <div class="btn-body">
           <strong>BC Pickup / Drop off</strong>
-          <span>Record a delivery, pallet drop or stock pickup at a site</span>
+          <span>Record a delivery or pallet drop at a site</span>
         </div>
-        <div class="big-btn-arrow">›</div>
+        <div class="btn-arrow">›</div>
       </a>
 
-      <button class="big-btn" onclick="showView('view-boxes')">
-        <div class="big-btn-icon">📦</div>
-        <div class="big-btn-text">
+      <button class="task-btn secondary" onclick="showView('view-boxes')">
+        <div class="btn-icon">📦</div>
+        <div class="btn-body">
           <strong>Boxes Return</strong>
           <span>Log boxes being returned from a run</span>
         </div>
-        <div class="big-btn-arrow">›</div>
+        <div class="btn-arrow">›</div>
       </button>
 
     </main>
 
-    <footer>Be Cool Couriers © 2026</footer>
+    <footer>Be Cool Couriers &copy; 2026</footer>
   </div>
 
   <!-- ── Boxes Return placeholder ── -->
   <div class="view" id="view-boxes">
-    <header>
-      <div class="logo">Be Cool Couriers</div>
-      <h1>Boxes Return</h1>
-      <p>Coming soon</p>
-    </header>
+    <div class="glow-bg"></div>
 
-    <div class="placeholder-main">
+    <div class="placeholder-view">
+      <div class="chip">Coming soon</div>
       <div class="placeholder-icon">📦</div>
       <h2>Boxes Return</h2>
-      <p>This section is under construction. The form for logging box returns will appear here.</p>
+      <p>The form for logging box returns will be built here once the layout is approved.</p>
       <button class="back-btn" onclick="showView('view-landing')">← Back</button>
     </div>
 
-    <footer>Be Cool Couriers © 2026</footer>
+    <footer>Be Cool Couriers &copy; 2026</footer>
   </div>
 
   <script>
