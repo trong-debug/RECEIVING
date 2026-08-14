@@ -2,6 +2,17 @@ const express = require('express');
 const path = require('path');
 const db = require('./db');
 
+function toSheetsPayload(row) {
+  const arrivedAt   = row.arrived_at   || '';
+  const dispatchAt  = row.dispatch_time || '';
+  return {
+    ...row,
+    arrival_date:  arrivedAt.slice(0, 10),
+    arrived_at:    arrivedAt.includes('T') ? arrivedAt.slice(11, 16) : arrivedAt,
+    dispatch_time: dispatchAt ? (dispatchAt.includes('T') ? dispatchAt.slice(11, 16) : dispatchAt) : null
+  };
+}
+
 async function syncToSheets(delivery) {
   const url = process.env.GOOGLE_SHEET_WEBHOOK;
   if (!url) { console.log('Sheets sync: no webhook URL set'); return; }
@@ -10,7 +21,7 @@ async function syncToSheets(delivery) {
     const res = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(delivery),
+      body: JSON.stringify(toSheetsPayload(delivery)),
       signal: AbortSignal.timeout(10000)
     });
     const text = await res.text();
@@ -197,7 +208,7 @@ app.post('/api/sync-to-sheets', async (_req, res) => {
         const r = await fetch(url, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(row),
+          body: JSON.stringify(toSheetsPayload(row)),
           signal: AbortSignal.timeout(15000)
         });
         if (r.ok) {
