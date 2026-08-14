@@ -124,11 +124,21 @@ async function openManage(type, label) {
 async function refreshManageList() {
   const type = currentManageType;
   const items = await fetch('/api/' + type).then(r => r.json());
-  const names = items.map(i => typeof i === 'string' ? i : i.name);
+  const names = items.map(i => typeof i === 'string' ? i : i.name).sort((a, b) => a.localeCompare(b));
   const ul = document.getElementById('manage-list');
   ul.innerHTML = names.length
     ? names.map(n => `<li class="manage-item"><span>${n}</span><button type="button" class="btn-delete-entry" onclick="deleteEntry('${type}','${n.replace(/'/g,"\\'")}')">✕</button></li>`).join('')
     : '<li class="manage-empty">No entries saved yet.</li>';
+}
+
+function sortSelect(sel) {
+  const saved = sel.value;
+  const newOpt = sel.querySelector('option[value="__new__"]');
+  const blank  = sel.querySelector('option[value=""]');
+  const opts   = [...sel.options].filter(o => o.value !== '__new__' && o.value !== '');
+  opts.sort((a, b) => a.text.localeCompare(b.text));
+  opts.forEach(o => sel.insertBefore(o, newOpt || null));
+  sel.value = saved;
 }
 
 async function addEntry() {
@@ -154,6 +164,7 @@ async function addEntry() {
     }
   }
 
+  if (sel) sortSelect(sel);
   input.value = '';
   input.focus();
   await refreshManageList();
